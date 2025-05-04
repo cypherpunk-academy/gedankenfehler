@@ -25,7 +25,7 @@ const server = (0, express_2.createExpressMiddleware)({
     createContext: () => ({}), // Add empty context
 });
 app.use('/trpc', server);
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.SERVER_PORT || 5001;
 app.listen(PORT, async () => {
     await (0, db_1.connectDB)();
     console.log(`Server is running on http://localhost:${PORT}`);
