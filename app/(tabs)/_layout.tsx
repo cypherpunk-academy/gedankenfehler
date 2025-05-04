@@ -68,8 +68,29 @@ export default function TabLayout() {
                 name="GedankenfehlerScreen"
                 options={{
                     title: 'Gedankenfehler',
+                    headerShown: false,
                     tabBarIcon: ({ color }) => (
                         <TabBarIcon name="cog" color={color} />
+                    ),
+                }}
+            />
+            <Tabs.Screen
+                name="AufloesungScreen"
+                options={{
+                    title: 'Auflösung',
+                    headerShown: false,
+                    tabBarIcon: ({ color }) => (
+                        <TabBarIcon name="lightbulb-o" color={color} />
+                    ),
+                }}
+            />
+            <Tabs.Screen
+                name="EinfuehrungScreen"
+                options={{
+                    title: 'Einführung',
+                    headerShown: false,
+                    tabBarIcon: ({ color }) => (
+                        <TabBarIcon name="info" color={color} />
                     ),
                 }}
             />
