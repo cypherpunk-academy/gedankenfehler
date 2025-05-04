@@ -7,7 +7,7 @@ import {
 } from 'react';
 import * as SecureStore from 'expo-secure-store';
 import uuid from 'react-native-uuid';
-import { trpc, setSessionId } from '@/packages/frontend/src/utils/trpc';
+import { trpc, setSessionId } from '../../packages/frontend/src/utils/trpc';
 
 interface SessionContextType {
     menschId: string | null;

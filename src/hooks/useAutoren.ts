@@ -1,5 +1,5 @@
-import { Autor } from '@/packages/backend/src/models/Autor';
-import { trpc } from '@/packages/frontend/src/utils/trpc';
+import { Autor } from '../../packages/backend/src/models/Autor';
+import { trpc } from '../../packages/frontend/src/utils/trpc';
 import { useQuery } from '@tanstack/react-query';
 
 export function useAutoren(autorIds?: string[]) {

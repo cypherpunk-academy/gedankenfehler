@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { trpc } from '@/packages/frontend/src/utils/trpc';
-import type { Gedanke } from '@/packages/backend/src/models/Gedanke';
+import { trpc } from '../../packages/frontend/src/utils/trpc';
+import type { Gedanke } from '../../packages/backend/src/models/Gedanke';
 
 export function useGedanken(weltanschauung?: string, nummer?: number) {
     // Check if either both parameters are set or none are set

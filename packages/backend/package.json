@@ -6,7 +6,7 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "build": "tsc",
-        "start": "PORT=5001 tsx watch src/server.ts",
+        "start": "node dist/server.js",
         "dev": "tsx watch src/server.ts",
         "watch": "tsc --watch"
     },
@@ -15,8 +15,8 @@
     "license": "ISC",
     "type": "commonjs",
     "dependencies": {
-        "@trpc/client": "^10.45.2",
-        "@trpc/server": "^10.45.2",
+        "@trpc/client": "^11.1.2",
+        "@trpc/server": "^11.1.2",
         "bcryptjs": "^2.4.3",
         "cors": "^2.8.5",
         "dotenv": "^16.4.7",

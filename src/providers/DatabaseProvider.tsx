@@ -5,8 +5,8 @@ import {
     useEffect,
     useState,
 } from 'react';
-import type { Gedanke } from '@/packages/backend/src/models/Gedanke';
-import type { Autor } from '@/packages/backend/src/models/Autor';
+import type { Gedanke } from '../../packages/backend/src/models/Gedanke';
+import type { Autor } from '../../packages/backend/src/models/Autor';
 import { useGedanken } from '@/hooks/useGedanken';
 import { useAutoren } from '@/hooks/useAutoren';
 import AsyncStorage from '@react-native-async-storage/async-storage';

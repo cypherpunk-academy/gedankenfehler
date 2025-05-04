@@ -29,7 +29,9 @@ const server = createExpressMiddleware({
 
 app.use('/trpc', server);
 
-app.listen(5001, async () => {
+const PORT = process.env.PORT || 5001;
+
+app.listen(PORT, async () => {
     await connectDB();
-    console.log('Server is running on http://localhost:5001');
+    console.log(`Server is running on http://localhost:${PORT}`);
 });

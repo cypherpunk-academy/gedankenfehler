@@ -1,8 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { trpc } from '@/packages/frontend/src/utils/trpc';
-import type { Gedanke } from '@/packages/backend/src/models/Gedanke';
-import type { Autor } from '@/packages/backend/src/models/Autor';
-import type { Bewertung } from '@/packages/backend/src/models/Bewertung';
+import { trpc } from '../../packages/frontend/src/utils/trpc';
+import type { Bewertung } from '../../packages/backend/src/models/Bewertung';
 import { ReactionType } from '../types';
 import { useMemo } from 'react';
 
