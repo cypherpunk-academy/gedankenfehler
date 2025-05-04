@@ -35,5 +35,8 @@
         "@types/mongoose": "^5.11.96",
         "tsx": "^4.19.2",
         "typescript": "^5.7.3"
+    },
+    "engines": {
+        "node": ">=20.18.1"
     }
 }
