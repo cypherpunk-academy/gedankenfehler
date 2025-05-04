@@ -130,7 +130,7 @@ export default function GedankenfehlerScreen() {
 
         if (wordCount > 50) return dynamicFontSizes.small;
         if (wordCount > 40) return dynamicFontSizes.medium;
-        if (wordCount > 30) return dynamicFontSizes.large;
+        if (wordCount > 25) return dynamicFontSizes.large;
         return dynamicFontSizes.xlarge;
     }, [currentGedankeKurz]);
 
