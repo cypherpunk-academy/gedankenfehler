@@ -1,0 +1,3 @@
+[submodule "packages/backend"]
+	path = packages/backend
+	url = https://github.com/cypherpunk-academy/weltanschauungen-backend.git
