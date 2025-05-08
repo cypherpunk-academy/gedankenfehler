@@ -23,6 +23,7 @@
         "@trpc/client": "^11.1.2",
         "@trpc/server": "^11.1.2",
         "expo": "~53.0.7",
+        "expo-constants": "^17.1.6",
         "expo-font": "~13.3.1",
         "expo-haptics": "^14.1.4",
         "expo-linking": "~7.1.4",
@@ -59,5 +60,12 @@
     "engines": {
         "node": ">=20.18.1"
     },
-    "packageManager": "yarn@1.22.21+sha1.1959a18351b811cdeedbd484a8f86c3cc3bbaf72"
+    "packageManager": "yarn@1.22.21+sha1.1959a18351b811cdeedbd484a8f86c3cc3bbaf72",
+    "resolutions": {
+        "string-width": "^4.2.3",
+        "strip-ansi": "^6.0.1",
+        "wrap-ansi": "^7.0.0",
+        "is-fullwidth-code-point": "^3.0.0",
+        "emoji-regex": "^8.0.0"
+    }
 }
