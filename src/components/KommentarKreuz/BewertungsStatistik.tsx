@@ -8,7 +8,7 @@ import {
     ImageBackground,
     Text,
 } from 'react-native';
-import { BarChart } from 'react-native-chart-kit';
+import { BarChart } from 'react-native-gifted-charts';
 import { Reaction } from '@/types';
 interface BewertungsStatistikProps {
     isVisible: boolean;
@@ -24,48 +24,17 @@ const BewertungsStatistik: React.FC<BewertungsStatistikProps> = ({
     const screenWidth = Dimensions.get('window').width;
     const chartWidth = Math.min(screenWidth - 20, 400); // Maximum width of 400, with 20px padding on each side
 
-    const data = {
-        labels: reactions.map(
-            (reaction) =>
-                reaction.type.charAt(0).toUpperCase() + reaction.type.slice(1)
+    const barData = reactions.map((reaction) => ({
+        value: reaction.count ?? 0,
+        label: reaction.type.charAt(0).toUpperCase() + reaction.type.slice(1),
+        frontColor: reaction.color,
+        labelTextStyle: { color: 'white', fontSize: 8 },
+        topLabelComponent: () => (
+            <Text style={{ color: 'white', fontSize: 10, marginBottom: 4 }}>
+                {reaction.count ?? 0}
+            </Text>
         ),
-        datasets: [
-            {
-                data: reactions.map((reaction) => reaction.count ?? 0),
-                colors: reactions.map(
-                    (reaction) =>
-                        (opacity = 1) =>
-                            reaction.color
-                ),
-            },
-        ],
-    };
-
-    const chartConfig = {
-        backgroundColor: 'transparent',
-        backgroundGradientFrom: 'transparent',
-        backgroundGradientTo: 'transparent',
-        decimalPlaces: 0,
-        color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-        labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-        style: {
-            borderRadius: 16,
-            backgroundColor: 'transparent',
-        },
-        propsForLabels: {
-            dx: -0,
-            fontSize: 8,
-        },
-        propsForBackgroundLines: {
-            stroke: 'rgba(255,255,255,0.2)',
-        },
-        formatTopBarValue: (value: number) => `${value}`,
-        fillShadowGradient: 'transparent',
-        fillShadowGradientOpacity: 0,
-        barPercentage: 0.7,
-        useShadowColorFromDataset: false,
-        strokeWidth: 0,
-    };
+    }));
 
     return (
         <Modal
@@ -86,24 +55,25 @@ const BewertungsStatistik: React.FC<BewertungsStatistikProps> = ({
                         resizeMode="stretch"
                         imageStyle={{ backgroundColor: 'transparent' }}
                     />
-                    <BarChart
-                        data={data}
-                        width={320}
-                        height={200}
-                        yAxisLabel=""
-                        yAxisSuffix=""
-                        segments={4}
-                        chartConfig={chartConfig}
-                        style={{
-                            ...styles.chart,
-                            backgroundColor: 'transparent',
-                        }}
-                        showValuesOnTopOfBars
-                        fromZero
-                        withCustomBarColorFromData={true}
-                        flatColor={true}
-                        withInnerLines={false}
-                    />
+                    <View style={styles.chartWrapper}>
+                        <BarChart
+                            data={barData}
+                            width={320}
+                            height={200}
+                            barWidth={chartWidth / (reactions.length * 2)}
+                            spacing={chartWidth / (reactions.length * 4)}
+                            hideRules
+                            xAxisThickness={0}
+                            yAxisThickness={0}
+                            yAxisTextStyle={{ color: 'white' }}
+                            noOfSections={4}
+                            backgroundColor="transparent"
+                            showFractionalValues={false}
+                            hideYAxisText
+                            barBorderRadius={4}
+                            isAnimated
+                        />
+                    </View>
 
                     {/* Runner emoji in the lower left corner */}
                     {isVisible && (
@@ -145,13 +115,11 @@ const styles = StyleSheet.create({
         zIndex: 1,
         borderRadius: 16,
     },
-    chart: {
-        marginHorizontal: -16,
-        marginLeft: 24,
+    chartWrapper: {
+        alignItems: 'center',
+        justifyContent: 'center',
         marginVertical: 8,
-        borderRadius: 16,
-        backgroundColor: 'transparent',
-        zIndex: 0,
+        zIndex: 2,
     },
     runnerContainer: {
         position: 'absolute',
