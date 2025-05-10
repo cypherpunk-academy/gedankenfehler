@@ -5,7 +5,6 @@ import {
     View,
     TouchableOpacity,
     Dimensions,
-    ImageBackground,
     Text,
 } from 'react-native';
 import { BarChart } from 'react-native-gifted-charts';
@@ -48,13 +47,11 @@ const BewertungsStatistik: React.FC<BewertungsStatistikProps> = ({
                 activeOpacity={1}
                 onPress={onClose}
             >
-                <View style={[styles.chartContainer, { width: chartWidth }]}>
-                    <ImageBackground
-                        source={require('@/assets/images/dialog-rectangle.png')}
-                        style={styles.backgroundImage}
-                        resizeMode="stretch"
-                        imageStyle={{ backgroundColor: 'transparent' }}
-                    />
+                <TouchableOpacity
+                    activeOpacity={1}
+                    onPress={(e) => e.stopPropagation()}
+                    style={[styles.chartContainer, { width: chartWidth }]}
+                >
                     <View style={styles.chartWrapper}>
                         <BarChart
                             data={barData}
@@ -74,19 +71,13 @@ const BewertungsStatistik: React.FC<BewertungsStatistikProps> = ({
                             isAnimated
                         />
                     </View>
-
-                    {/* Runner emoji in the lower left corner */}
-                    {isVisible && (
-                        <TouchableOpacity
-                            style={styles.runnerContainer}
-                            onPress={() => {
-                                onClose();
-                            }}
-                        >
-                            <Text style={styles.runnerEmoji}>🏃‍♂️</Text>
-                        </TouchableOpacity>
-                    )}
-                </View>
+                    <TouchableOpacity
+                        style={styles.closeButton}
+                        onPress={onClose}
+                    >
+                        <Text style={styles.closeButtonText}>×</Text>
+                    </TouchableOpacity>
+                </TouchableOpacity>
             </TouchableOpacity>
         </Modal>
     );
@@ -106,25 +97,48 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
         position: 'relative',
     },
+    chartWrapper: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginVertical: 8,
+        backgroundColor: 'rgba(0, 0,0, 0.7)',
+        borderRadius: 16,
+        width: '95%',
+        marginLeft: '2.5%',
+        zIndex: 1,
+        padding: 5,
+    },
+    closeButton: {
+        position: 'absolute',
+        top: -10,
+        right: -10,
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        width: 30,
+        height: 30,
+        borderRadius: 15,
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 10,
+    },
+    closeButtonText: {
+        color: 'white',
+        fontSize: 20,
+        fontWeight: 'bold',
+    },
+    // Keeping the following for backward compatibility
     backgroundImage: {
         position: 'absolute',
         top: -35,
         left: 0,
         right: 0,
         bottom: -30,
-        zIndex: 1,
-        borderRadius: 16,
-    },
-    chartWrapper: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginVertical: 8,
         zIndex: 2,
+        borderRadius: 16,
     },
     runnerContainer: {
         position: 'absolute',
         bottom: 20,
-        left: 40,
+        left: 15,
         zIndex: 10,
     },
     runnerEmoji: {
