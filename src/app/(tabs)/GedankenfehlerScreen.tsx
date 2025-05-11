@@ -18,12 +18,17 @@ import { Weltanschauungen } from '@/constants/Weltanschauungen';
 import { ScrollAuswahl } from '@/components/ScrollAuswahl';
 import { TabsColors } from '@/constants/TabsColors';
 import { AuswahlRad } from '@/components/Auswahlrad/index';
+import {
+    DeviceType,
+    ScreenProfiles,
+    useDeviceProfile,
+} from '@/utils/DeviceProfiles';
 
 // Layout constants
 const windowWidth = Dimensions.get('window').width;
 
-const auswahlRadContainerX = -170;
-const auswahlRadContainerY = 400;
+// AuswahlRad config - now handled by device profiles
+
 const dynamicFontSizes = {
     small: 15,
     medium: 17,
@@ -31,21 +36,14 @@ const dynamicFontSizes = {
     xlarge: 20,
 };
 
-// AuswahlRad config
-const auswahlRadOptions = {
-    circleSize: 722,
-    circleOffsetX: auswahlRadContainerX,
-    circleOffsetY: auswahlRadContainerY,
-    minTapDistanceFromCenter: 20,
-    autorImageSize: 130,
-    autorImageSizeLarge: 200,
-    autorImageRadius: 20,
-    autorImageRadiusLarge: 10,
-};
-
 export default function GedankenfehlerScreen() {
     const router = useRouter();
     const styles = getStyles();
+
+    // Get device profile
+    const deviceProfile = useDeviceProfile(getScreenProfiles());
+    const auswahlRadOptions = deviceProfile.auswahlRad;
+    const scrollAuswahlOptions = deviceProfile.scrollAuswahl;
 
     const {
         gedanken: allGedanken,
@@ -164,8 +162,8 @@ export default function GedankenfehlerScreen() {
     }
 
     return (
-        <ScrollView style={styles.container}>
-            {/* Thought selector */}
+        <ThemedView style={styles.container}>
+            {/* Gedankenfehlerauswahl */}
             <ThemedView style={styles.pickerContainer}>
                 <Animated.Text
                     style={{
@@ -182,6 +180,7 @@ export default function GedankenfehlerScreen() {
                     onScrollPositionChange={(position) => {
                         scrollPickerY.setValue(position);
                     }}
+                    options={scrollAuswahlOptions}
                 />
             </ThemedView>
             {/* Main thought display */}
@@ -226,7 +225,15 @@ export default function GedankenfehlerScreen() {
                 )}
             </View>
             {/* Worldview selection wheel */}
-            <ThemedView style={styles.auswahlradContainer}>
+            <ThemedView
+                style={[
+                    styles.auswahlradContainer,
+                    {
+                        left: auswahlRadOptions.circleOffsetX,
+                        top: auswahlRadOptions.circleOffsetY,
+                    },
+                ]}
+            >
                 <AuswahlRad
                     allAutoren={allAutoren}
                     weltanschauungIndex={weltanschauungIndex}
@@ -234,9 +241,99 @@ export default function GedankenfehlerScreen() {
                     options={auswahlRadOptions}
                 />
             </ThemedView>
-        </ScrollView>
+        </ThemedView>
     );
 }
+
+const getScreenProfiles = (): Record<DeviceType, ScreenProfiles> => {
+    return {
+        smartphone: {
+            auswahlRad: {
+                circleSize: 820,
+                circleOffsetX: -210,
+                circleOffsetY: 420,
+                minTapDistanceFromCenter: 20,
+                autorImageSize: 170,
+                autorImageSizeLarge: 220,
+                autorImageRadius: 22,
+                autorImageRadiusLarge: 8,
+            },
+            scrollAuswahl: {
+                itemHeight: 50,
+                visibleItems: 5,
+                fontSize: 20,
+            },
+        },
+        tablet: {
+            auswahlRad: {
+                circleSize: 722,
+                circleOffsetX: -170,
+                circleOffsetY: 400,
+                minTapDistanceFromCenter: 20,
+                autorImageSize: 130,
+                autorImageSizeLarge: 200,
+                autorImageRadius: 20,
+                autorImageRadiusLarge: 10,
+            },
+            scrollAuswahl: {
+                itemHeight: 50,
+                visibleItems: 5,
+                fontSize: 18,
+            },
+        },
+        webSmall: {
+            auswahlRad: {
+                circleSize: 850,
+                circleOffsetX: -170,
+                circleOffsetY: 450,
+                minTapDistanceFromCenter: 20,
+                autorImageSize: 150,
+                autorImageSizeLarge: 230,
+                autorImageRadius: 25,
+                autorImageRadiusLarge: 12,
+            },
+            scrollAuswahl: {
+                itemHeight: 60,
+                visibleItems: 5,
+                fontSize: 20,
+            },
+        },
+        webMedium: {
+            auswahlRad: {
+                circleSize: 850,
+                circleOffsetX: -170,
+                circleOffsetY: 450,
+                minTapDistanceFromCenter: 20,
+                autorImageSize: 150,
+                autorImageSizeLarge: 230,
+                autorImageRadius: 25,
+                autorImageRadiusLarge: 12,
+            },
+            scrollAuswahl: {
+                itemHeight: 60,
+                visibleItems: 5,
+                fontSize: 20,
+            },
+        },
+        webLarge: {
+            auswahlRad: {
+                circleSize: 1850,
+                circleOffsetX: -170,
+                circleOffsetY: 450,
+                minTapDistanceFromCenter: 20,
+                autorImageSize: 150,
+                autorImageSizeLarge: 230,
+                autorImageRadius: 25,
+                autorImageRadiusLarge: 12,
+            },
+            scrollAuswahl: {
+                itemHeight: 60,
+                visibleItems: 5,
+                fontSize: 20,
+            },
+        },
+    };
+};
 
 // Theme-aware styles
 const getStyles = () => {
@@ -247,6 +344,7 @@ const getStyles = () => {
         // Layout containers
         container: {
             flex: 1,
+
             padding: 16,
         },
         loadingContainer: {
@@ -386,8 +484,6 @@ const getStyles = () => {
         // Auswahl wheel
         auswahlradContainer: {
             position: 'absolute',
-            left: auswahlRadContainerX,
-            top: auswahlRadContainerY,
         },
     });
 };

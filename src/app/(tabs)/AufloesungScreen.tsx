@@ -18,22 +18,13 @@ import { Reaction, ReactionType } from '@/types';
 import { useBewertungen } from '@/hooks/useBewertungen';
 import { ThemedView } from '@/components/ThemedView';
 import { AuswahlRad } from '@/components/Auswahlrad/index';
+import {
+    useDeviceProfile,
+    aufloesungScreenProfiles,
+} from '@/utils/DeviceProfiles';
 
 // AuswahlRad config for right bottom corner
-const auswahlRadContainerX = -80; // Position relative to right edge
-const auswahlRadContainerY = 680;
-
-// AuswahlRad config
-const auswahlRadOptions = {
-    circleSize: 800,
-    circleOffsetX: auswahlRadContainerX,
-    circleOffsetY: auswahlRadContainerY,
-    minTapDistanceFromCenter: 20,
-    autorImageSize: 150,
-    autorImageSizeLarge: 170,
-    autorImageRadius: 60,
-    autorImageRadiusLarge: 60,
-};
+// Now handled by device profiles
 
 const reactions: Reaction[] = [
     { type: 'interesse', color: 'rgba(255, 255, 255, 0.6)', count: null },
@@ -48,6 +39,11 @@ const Gedankenkarte = () => {
     const styles = getStyles();
     const [showCommentWheel, setShowCommentWheel] = useState(false);
     const scrollViewRef = useRef<ScrollView>(null);
+
+    // Get device profile
+    const deviceProfile = useDeviceProfile(aufloesungScreenProfiles);
+    const auswahlRadOptions = deviceProfile.auswahlRad;
+    const kommentarKreuzOptions = deviceProfile.kommentarKreuz;
 
     // Replace API hooks with context
     const {
@@ -264,6 +260,7 @@ const Gedankenkarte = () => {
                                 isVisible={showCommentWheel}
                                 onClose={() => setShowCommentWheel(false)}
                                 onSelect={handleCommentSelect}
+                                options={kommentarKreuzOptions}
                             />
                         </ThemedView>
                     </>
@@ -293,7 +290,15 @@ const Gedankenkarte = () => {
                 )}
             </>
 
-            <ThemedView style={styles.auswahlradContainer}>
+            <ThemedView
+                style={[
+                    styles.auswahlradContainer,
+                    {
+                        left: auswahlRadOptions.circleOffsetX,
+                        top: auswahlRadOptions.circleOffsetY,
+                    },
+                ]}
+            >
                 {allAutoren && (
                     <AuswahlRad
                         allAutoren={allAutoren}
@@ -370,8 +375,6 @@ const getStyles = () => {
             position: 'absolute',
             right: 0,
             bottom: 0,
-            left: auswahlRadContainerX,
-            top: auswahlRadContainerY,
             zIndex: 10,
         },
         error: {

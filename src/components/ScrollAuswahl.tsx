@@ -17,17 +17,18 @@ import Animated, {
     runOnJS,
 } from 'react-native-reanimated';
 import { ThemedText } from './ThemedText';
+import { ScrollAuswahlProfile } from '@/utils/DeviceProfiles';
 
 const { width: WINDOW_WIDTH } = Dimensions.get('window');
-const ITEM_HEIGHT = 50;
-const VISIBLE_ITEMS = 5;
-const CONTAINER_HEIGHT = ITEM_HEIGHT * VISIBLE_ITEMS;
+const DEFAULT_ITEM_HEIGHT = 50;
+const DEFAULT_VISIBLE_ITEMS = 5;
 
 interface ScrollPickerProps {
     items?: Array<{ nummer: number; ausgangsgedanke: string }>;
     selectedValue: number;
     onValueChange: (value: number) => void;
     onScrollPositionChange?: (position: number) => void;
+    options?: ScrollAuswahlProfile;
 }
 
 const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
@@ -38,11 +39,18 @@ export function ScrollAuswahl({
     selectedValue,
     onValueChange,
     onScrollPositionChange,
+    options,
 }: ScrollPickerProps) {
     const scrollY = useSharedValue(0);
     const scrollViewRef = useRef<ScrollView>(null);
     const isScrolling = useSharedValue(false);
     const isSnapping = useRef(false);
+
+    // Use options from device profile if provided, otherwise use defaults
+    const ITEM_HEIGHT = options?.itemHeight || DEFAULT_ITEM_HEIGHT;
+    const VISIBLE_ITEMS = options?.visibleItems || DEFAULT_VISIBLE_ITEMS;
+    const CONTAINER_HEIGHT = ITEM_HEIGHT * VISIBLE_ITEMS;
+    const FONT_SIZE = options?.fontSize || 18;
 
     // Move scroll logic to a separate function
     const scrollToPosition = useCallback((y: number) => {
@@ -72,7 +80,7 @@ export function ScrollAuswahl({
                 }
             }
         }
-    }, [items, selectedValue, onValueChange, scrollToPosition]);
+    }, [items, selectedValue, onValueChange, scrollToPosition, ITEM_HEIGHT]);
 
     const scrollHandler = useAnimatedScrollHandler({
         onScroll: (event) => {
@@ -103,7 +111,7 @@ export function ScrollAuswahl({
                 onValueChange(items[index].nummer);
             }
         },
-        [items, onValueChange, scrollToPosition]
+        [items, onValueChange, scrollToPosition, ITEM_HEIGHT]
     );
 
     // Create a component for each item to properly scope the hooks
@@ -148,7 +156,11 @@ export function ScrollAuswahl({
             return (
                 <AnimatedPressable
                     key={item.nummer}
-                    style={[styles.item, animatedStyle]}
+                    style={[
+                        styles.item,
+                        { height: ITEM_HEIGHT },
+                        animatedStyle,
+                    ]}
                     onPress={() => {
                         scrollToPosition(index * ITEM_HEIGHT);
                         onValueChange(item.nummer);
@@ -157,6 +169,7 @@ export function ScrollAuswahl({
                     <ThemedText
                         style={[
                             styles.itemText,
+                            { fontSize: FONT_SIZE },
                             selectedValue === item.nummer &&
                                 styles.selectedItemText,
                         ]}
@@ -166,12 +179,19 @@ export function ScrollAuswahl({
                 </AnimatedPressable>
             );
         },
-        [scrollY, scrollToPosition, onValueChange, selectedValue]
+        [
+            scrollY,
+            scrollToPosition,
+            onValueChange,
+            selectedValue,
+            ITEM_HEIGHT,
+            FONT_SIZE,
+        ]
     );
 
     if (!items || items.length === 0) {
         return (
-            <View style={styles.container}>
+            <View style={[styles.container, { height: CONTAINER_HEIGHT }]}>
                 <ThemedText style={styles.itemText}>
                     No items available
                 </ThemedText>
@@ -180,11 +200,14 @@ export function ScrollAuswahl({
     }
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { height: CONTAINER_HEIGHT }]}>
             <AnimatedScrollView
                 ref={scrollViewRef}
-                style={styles.scrollView}
-                contentContainerStyle={styles.scrollContent}
+                style={[styles.scrollView, { height: CONTAINER_HEIGHT }]}
+                contentContainerStyle={[
+                    styles.scrollContent,
+                    { paddingVertical: CONTAINER_HEIGHT / 2 - ITEM_HEIGHT / 2 },
+                ]}
                 showsVerticalScrollIndicator={false}
                 snapToInterval={ITEM_HEIGHT}
                 decelerationRate="fast"
@@ -200,30 +223,32 @@ export function ScrollAuswahl({
                     />
                 ))}
             </AnimatedScrollView>
-            <View style={styles.centerOverlay} pointerEvents="none" />
+            <View
+                style={[
+                    styles.centerOverlay,
+                    {
+                        top: CONTAINER_HEIGHT / 2 - ITEM_HEIGHT / 2,
+                        height: ITEM_HEIGHT,
+                    },
+                ]}
+                pointerEvents="none"
+            />
         </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
-        height: CONTAINER_HEIGHT,
         width: WINDOW_WIDTH - 32,
         overflow: 'hidden',
     },
-    scrollView: {
-        height: CONTAINER_HEIGHT,
-    },
-    scrollContent: {
-        paddingVertical: CONTAINER_HEIGHT / 2 - ITEM_HEIGHT / 2,
-    },
+    scrollView: {},
+    scrollContent: {},
     item: {
-        height: ITEM_HEIGHT,
         justifyContent: 'center',
         paddingHorizontal: 20,
     },
     itemText: {
-        fontSize: 18,
         fontFamily: 'OverlockRegular',
         textAlign: 'center',
         color: 'rgb(169, 22, 22)',
@@ -233,10 +258,8 @@ const styles = StyleSheet.create({
     },
     centerOverlay: {
         position: 'absolute',
-        top: CONTAINER_HEIGHT / 2 - ITEM_HEIGHT / 2,
         left: 0,
         right: 0,
-        height: ITEM_HEIGHT,
         backgroundColor: 'rgba(200, 200, 200, 0.1)',
         borderTopWidth: 1,
         borderBottomWidth: 1,

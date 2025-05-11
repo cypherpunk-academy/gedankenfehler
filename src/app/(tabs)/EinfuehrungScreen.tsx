@@ -12,6 +12,10 @@ import künstlicheIntelligenz from '../../assets/stories/künstlicheIntelligenz.
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 import { useFocusEffect } from '@react-navigation/native';
 import { router } from 'expo-router';
+import {
+    useDeviceProfile,
+    einfuehrungScreenProfiles,
+} from '@/utils/DeviceProfiles';
 
 type EinführungStory = {
     text: string;
@@ -24,6 +28,10 @@ const kiStories: EinführungStory[] = künstlicheIntelligenz.story;
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 export default function EinfuehrungScreen() {
+    // Get device profile
+    const deviceProfile = useDeviceProfile(einfuehrungScreenProfiles);
+    const auswahlRadOptions = deviceProfile.auswahlRad;
+
     const [activeIndex, setActiveIndex] = useState(0);
     const carouselRef = useRef(null);
     const [progress, setProgress] = useState(0);
@@ -137,6 +145,15 @@ export default function EinfuehrungScreen() {
         (isLastSlide && currentStory === einführungStories) ||
         !isInitialAppLaunch;
 
+    // Helper function to calculate text size based on device type
+    const getTextSize = () => {
+        const deviceType =
+            auswahlRadOptions.circleSize < 700 ? 'smartphone' : 'tablet';
+        return deviceType === 'smartphone' ? 18 : 22;
+    };
+
+    const fontSize = getTextSize();
+
     return (
         <View style={styles.container}>
             <Animated.Image
@@ -168,7 +185,7 @@ export default function EinfuehrungScreen() {
                             : showEinfuehrungStory
                     }
                 >
-                    <Text style={styles.buttonText}>
+                    <Text style={[styles.buttonText, { fontSize }]}>
                         {currentStory === einführungStories
                             ? 'Über die App'
                             : 'Einführung'}
@@ -252,7 +269,6 @@ const styles = StyleSheet.create({
     },
     buttonText: {
         color: 'white',
-        fontSize: 18,
         fontFamily: 'OverlockRegular',
     },
 });

@@ -11,14 +11,20 @@ import {
 } from 'react-native';
 import type { Reaction, ReactionType } from '@/types';
 import BewertungsStatistik from './BewertungsStatistik';
+import { KommentarKreuzProfile } from '@/utils/DeviceProfiles';
 
-const WHEEL_RADIUS = 80;
-const NO_DECISION_THRESHOLD = 60;
+// Default values that will be overridden by device profile options if provided
+const DEFAULT_WHEEL_RADIUS = 80;
+const DEFAULT_NO_DECISION_THRESHOLD = 60;
+const DEFAULT_CONTAINER_SIZE = 400;
+const DEFAULT_CENTER_CIRCLE_SIZE = 100;
+
 interface CommentWheelProps<Reaction> {
     isVisible: boolean;
     onClose: () => void;
     onSelect: (direction: ReactionType) => void;
     reactions: Reaction[];
+    options?: KommentarKreuzProfile;
 }
 
 const KommentarKreuz: React.FC<CommentWheelProps<Reaction>> = ({
@@ -26,11 +32,20 @@ const KommentarKreuz: React.FC<CommentWheelProps<Reaction>> = ({
     onClose,
     onSelect,
     reactions,
+    options,
 }) => {
     const [showStats, setShowStats] = useState(false);
     const pan = useRef(new Animated.ValueXY()).current;
     const selectionRef = useRef<string | null>(null);
     const angleAnim = useRef(new Animated.Value(-1)).current;
+
+    // Use options from device profile if provided, otherwise use defaults
+    const containerSize = options?.containerSize || DEFAULT_CONTAINER_SIZE;
+    const centerCircleSize =
+        options?.centerCircleSize || DEFAULT_CENTER_CIRCLE_SIZE;
+    const wheelRadius = options?.reactionDistance || DEFAULT_WHEEL_RADIUS;
+    const noDecisionThreshold =
+        centerCircleSize * 0.75 || DEFAULT_NO_DECISION_THRESHOLD;
 
     React.useEffect(() => {
         if (isVisible) {
@@ -43,11 +58,11 @@ const KommentarKreuz: React.FC<CommentWheelProps<Reaction>> = ({
     const getDampedValue = (value: number) => {
         const sign = Math.sign(value);
         const absValue = Math.abs(value);
-        if (absValue <= WHEEL_RADIUS / 2) {
+        if (absValue <= wheelRadius / 2) {
             return value;
         }
-        const excess = absValue - WHEEL_RADIUS / 2;
-        return sign * (WHEEL_RADIUS / 2 + excess * 0.3); // Dämpfungsfaktor von 0.2 auf 0.1 reduziert
+        const excess = absValue - wheelRadius / 2;
+        return sign * (wheelRadius / 2 + excess * 0.3); // Dämpfungsfaktor von 0.2 auf 0.1 reduziert
     };
 
     const panResponder = PanResponder.create({
@@ -59,8 +74,8 @@ const KommentarKreuz: React.FC<CommentWheelProps<Reaction>> = ({
             pan.setValue({ x: clampedX, y: clampedY });
 
             if (
-                Math.abs(clampedX) > NO_DECISION_THRESHOLD ||
-                Math.abs(clampedY) > NO_DECISION_THRESHOLD
+                Math.abs(clampedX) > noDecisionThreshold ||
+                Math.abs(clampedY) > noDecisionThreshold
             ) {
                 const angle = Math.atan2(gesture.dy, gesture.dx);
                 const degrees = (angle * 180) / Math.PI;
@@ -93,8 +108,8 @@ const KommentarKreuz: React.FC<CommentWheelProps<Reaction>> = ({
 
             if (
                 selectionRef.current &&
-                (Math.abs(clampedX) > NO_DECISION_THRESHOLD ||
-                    Math.abs(clampedY) > NO_DECISION_THRESHOLD)
+                (Math.abs(clampedX) > noDecisionThreshold ||
+                    Math.abs(clampedY) > noDecisionThreshold)
             ) {
                 onSelect(selectionRef.current as ReactionType);
                 setShowStats(true);
@@ -123,11 +138,19 @@ const KommentarKreuz: React.FC<CommentWheelProps<Reaction>> = ({
                     activeOpacity={1}
                     onPress={onClose}
                 >
-                    <View style={styles.wheelContainer}>
+                    <View
+                        style={[
+                            styles.wheelContainer,
+                            { width: containerSize, height: containerSize },
+                        ]}
+                    >
                         <Animated.View
                             style={[
                                 styles.wheel,
                                 {
+                                    width: containerSize,
+                                    height: containerSize,
+                                    borderRadius: containerSize / 2,
                                     transform: [
                                         { translateX: pan.x },
                                         { translateY: pan.y },
@@ -174,16 +197,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     wheelContainer: {
-        width: 400,
-        height: 400,
         justifyContent: 'center',
         alignItems: 'center',
     },
     wheel: {
         shadowColor: 'transparent',
-        width: 400,
-        height: 400,
-        borderRadius: 200,
         elevation: 5,
         padding: 5,
         borderWidth: 10,
