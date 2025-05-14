@@ -332,22 +332,12 @@ export function AuswahlRad({
                     ((Math.round(rotateValueRef.current) % 12) + 12) % 12;
 
                 // Update the weltanschauung index (12 - newIndex makes top = selected)
-                const newWeltanschauungIndex = 12 - newIndex;
-
-                console.log(1, 'index.tsx:316', {
-                    rotateValue: rotateValueRef.current,
-                    newIndex,
-                    newWeltanschauungIndex,
-                    weltanschauungIndex: weltanschauungIndexRef.current,
-                });
+                const newWeltanschauungIndex = (12 - newIndex) % 12;
 
                 // Only update if the index has changed
                 if (weltanschauungIndexRef.current !== newWeltanschauungIndex) {
                     setWeltanschauungIndex(newWeltanschauungIndex);
                     weltanschauungIndexRef.current = newWeltanschauungIndex;
-                    console.log(1, 'index.tsx:327', {
-                        weltanschauungIndex: weltanschauungIndexRef.current,
-                    });
                 }
 
                 // Store final rotation value for continuity with next gesture
