@@ -86,9 +86,21 @@ export interface ScrollAuswahlProfile {
 
 // Combined profiles for each screen
 export interface ScreenProfiles {
+    container?: {
+        flexDirection: 'column' | 'row';
+        marginTop: number;
+        titleHeight: number;
+    };
+    titleTextGedankenfehler?: { fontSize: number };
     auswahlRad: AuswahlRadProfile;
     kommentarKreuz?: KommentarKreuzProfile;
     scrollAuswahl?: ScrollAuswahlProfile;
+    canvasViewContainer?: {
+        width: number;
+        height: number;
+        marginTop: number;
+        marginLeft: number;
+    };
 }
 
 // AufloesungScreen profiles

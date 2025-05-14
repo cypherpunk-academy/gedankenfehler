@@ -38,12 +38,13 @@ const dynamicFontSizes = {
 
 export default function GedankenfehlerScreen() {
     const router = useRouter();
-    const styles = getStyles();
 
     // Get device profile
     const deviceProfile = useDeviceProfile(getScreenProfiles());
     const auswahlRadOptions = deviceProfile.auswahlRad;
     const scrollAuswahlOptions = deviceProfile.scrollAuswahl;
+
+    const styles = getStyles(deviceProfile);
 
     const {
         gedanken: allGedanken,
@@ -163,16 +164,11 @@ export default function GedankenfehlerScreen() {
 
     return (
         <ThemedView style={styles.container}>
-            {/* Gedankenfehlerauswahl */}
-            <ThemedView style={styles.pickerContainer}>
-                <Animated.Text
-                    style={{
-                        ...styles.titleTextGedankenfehler,
-                        opacity: titleOpacity,
-                    }}
-                >
+            {/* Left side - Gedankenfehlerauswahl (30%) */}
+            <ThemedView style={styles.gedankenfehlerContainer}>
+                <ThemedText style={styles.titleTextGedankenfehler}>
                     {`${alleAusgangsgedanken.length} kulturgewordene Gedankenfehler`}
-                </Animated.Text>
+                </ThemedText>
                 <ScrollAuswahl
                     items={filteredAusgangsgedanken}
                     selectedValue={nummer}
@@ -183,8 +179,9 @@ export default function GedankenfehlerScreen() {
                     options={scrollAuswahlOptions}
                 />
             </ThemedView>
-            {/* Main thought display */}
-            <View style={styles.circleWrapper}>
+
+            {/* Right side - Main thought display and wheel (70%) */}
+            <ThemedView style={styles.weltanschuungenContainer}>
                 <ThemedText style={{ ...styles.titleTextWeltanschauungen }}>
                     12 Weltanschauungen
                 </ThemedText>
@@ -223,7 +220,7 @@ export default function GedankenfehlerScreen() {
                         </ThemedView>
                     </TouchableOpacity>
                 )}
-            </View>
+            </ThemedView>
             {/* Worldview selection wheel */}
             <ThemedView
                 style={[
@@ -248,23 +245,41 @@ export default function GedankenfehlerScreen() {
 const getScreenProfiles = (): Record<DeviceType, ScreenProfiles> => {
     return {
         smartphone: {
+            container: {
+                flexDirection: 'column',
+                marginTop: 20,
+                titleHeight: 50,
+            },
+            titleTextGedankenfehler: {
+                fontSize: 22,
+            },
+            scrollAuswahl: {
+                itemHeight: 60,
+                visibleItems: 3,
+                fontSize: 20,
+            },
             auswahlRad: {
                 circleSize: 820,
                 circleOffsetX: -210,
-                circleOffsetY: 420,
+                circleOffsetY: 410,
                 minTapDistanceFromCenter: 20,
                 autorImageSize: 170,
                 autorImageSizeLarge: 220,
                 autorImageRadius: 22,
                 autorImageRadiusLarge: 8,
             },
-            scrollAuswahl: {
-                itemHeight: 50,
-                visibleItems: 5,
-                fontSize: 20,
+            canvasViewContainer: {
+                width: 380,
+                height: 250,
+                marginTop: 190,
+                marginLeft: -30,
             },
         },
         tablet: {
+            container: { flexDirection: 'column' },
+            titleTextGedankenfehler: {
+                fontSize: 24,
+            },
             auswahlRad: {
                 circleSize: 722,
                 circleOffsetX: -170,
@@ -282,6 +297,10 @@ const getScreenProfiles = (): Record<DeviceType, ScreenProfiles> => {
             },
         },
         webSmall: {
+            container: { flexDirection: 'column' },
+            titleTextGedankenfehler: {
+                fontSize: 24,
+            },
             auswahlRad: {
                 circleSize: 850,
                 circleOffsetX: -170,
@@ -299,6 +318,10 @@ const getScreenProfiles = (): Record<DeviceType, ScreenProfiles> => {
             },
         },
         webMedium: {
+            container: { flexDirection: 'row' },
+            titleTextGedankenfehler: {
+                fontSize: 24,
+            },
             auswahlRad: {
                 circleSize: 850,
                 circleOffsetX: -170,
@@ -316,87 +339,98 @@ const getScreenProfiles = (): Record<DeviceType, ScreenProfiles> => {
             },
         },
         webLarge: {
+            container: { flexDirection: 'row', marginTop: 0, titleHeight: 60 },
+            titleTextGedankenfehler: {
+                fontSize: 32,
+            },
+            scrollAuswahl: {
+                itemHeight: 80,
+                visibleItems: 10,
+                fontSize: 30,
+            },
             auswahlRad: {
-                circleSize: 1850,
-                circleOffsetX: -170,
-                circleOffsetY: 450,
+                circleSize: 1000,
+                circleOffsetX: 890,
+                circleOffsetY: 190,
                 minTapDistanceFromCenter: 20,
-                autorImageSize: 150,
-                autorImageSizeLarge: 230,
+                autorImageSize: 180,
+                autorImageSizeLarge: 250,
                 autorImageRadius: 25,
                 autorImageRadiusLarge: 12,
             },
-            scrollAuswahl: {
-                itemHeight: 60,
-                visibleItems: 5,
-                fontSize: 20,
+            canvasViewContainer: {
+                width: 620,
+                height: 550,
+                marginTop: 310,
+                marginLeft: -30,
             },
         },
     };
 };
 
 // Theme-aware styles
-const getStyles = () => {
+const getStyles = (deviceProfile: ScreenProfiles) => {
     const colorScheme = useColorScheme();
     const theme: 'light' | 'dark' = colorScheme === 'dark' ? 'dark' : 'light';
+    const flexDirection = deviceProfile.container?.flexDirection || 'column';
+    const titleTextFontSize =
+        deviceProfile.titleTextGedankenfehler?.fontSize || 24;
+    const titleTextLineHeight = titleTextFontSize * 1.3;
 
     return StyleSheet.create({
-        // Layout containers
+        // Layout container
         container: {
             flex: 1,
-
+            flexDirection,
+            marginTop: deviceProfile.container?.marginTop || 0,
             padding: 16,
+        },
+        gedankenfehlerContainer: {
+            width: flexDirection === 'row' ? '40%' : '100%',
+            paddingRight: 8,
+            position: 'relative',
+            alignItems: 'center',
+        },
+        weltanschuungenContainer: {
+            position: 'relative',
+            width: flexDirection === 'row' ? '60%' : windowWidth,
         },
         loadingContainer: {
             flex: 1,
             justifyContent: 'center',
             alignItems: 'center',
         },
-        pickerContainer: {
-            marginTop: 20,
-        },
-        circleWrapper: {
-            position: 'relative',
-            width: windowWidth,
-            height: windowWidth,
-            marginTop: 70,
-            alignItems: 'center',
-            justifyContent: 'center',
-        },
 
         // Title and text elements
         titleTextGedankenfehler: {
-            position: 'absolute',
-            width: '110%',
-            top: 0,
-            left: -15,
-            right: 0,
+            position: 'relative',
+            width: '100%',
+            height: deviceProfile.container?.titleHeight || 32,
             padding: 5,
+            marginBottom: 10,
             fontFamily: 'OverlockBold',
-            fontSize: 32,
-            lineHeight: 36,
-            color: TabsColors[theme].gedankenfehlerDefaultColor,
+            fontSize: titleTextFontSize,
+            lineHeight: titleTextLineHeight,
             textAlign: 'center',
             borderTopWidth: 0.5,
             borderBottomWidth: 0.5,
+            color: TabsColors[theme].gedankenfehlerDefaultColor,
             borderColor: TabsColors[theme].gedankenfehlerDefaultColor,
             backgroundColor:
                 TabsColors[theme].titleTextGedankenfehlerBackgroundColor,
         },
         titleTextWeltanschauungen: {
-            position: 'absolute',
-            width: '105%',
-            top: -65,
-            right: 0,
-            left: -15,
+            position: 'relative',
+            width: '100%',
             padding: 5,
             fontFamily: 'OverlockBold',
             fontSize: 32,
             lineHeight: 48,
-            color: TabsColors[theme].weltanschauungenDefaultColor,
+            marginTop: deviceProfile.container?.marginTop || 0,
             textAlign: 'center',
             borderTopWidth: 0.5,
             borderBottomWidth: 0.5,
+            color: TabsColors[theme].weltanschauungenDefaultColor,
             borderColor: TabsColors[theme].weltanschauungenDefaultColor,
             backgroundColor:
                 TabsColors[theme].titleTextWeltanschauungenBackgroundColor,
@@ -409,10 +443,10 @@ const getStyles = () => {
 
         // Center container and elements
         canvasViewContainer: {
-            width: '93%',
-            height: 250,
-            marginTop: 230,
-            marginLeft: -30,
+            width: deviceProfile.canvasViewContainer?.width || 370,
+            height: deviceProfile.canvasViewContainer?.height || 250,
+            marginTop: deviceProfile.canvasViewContainer?.marginTop || 190,
+            marginLeft: deviceProfile.canvasViewContainer?.marginLeft || -30,
             zIndex: 10,
             alignSelf: 'center',
             alignItems: 'center',
@@ -474,8 +508,6 @@ const getStyles = () => {
         },
         canvasGedankeKurz: {
             fontFamily: 'OverlockBold',
-            // fontSize: 18, // s. dynamicFontSize
-            // lineHeight: 26, // s. dynamicFontSize
             color: TabsColors[theme].weltanschauungenDefaultColor,
             textAlign: 'center',
             backgroundColor: 'transparent',
@@ -484,6 +516,7 @@ const getStyles = () => {
         // Auswahl wheel
         auswahlradContainer: {
             position: 'absolute',
+            backgroundColor: 'transparent',
         },
     });
 };

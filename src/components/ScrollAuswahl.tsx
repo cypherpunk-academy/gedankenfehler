@@ -19,7 +19,6 @@ import Animated, {
 import { ThemedText } from './ThemedText';
 import { ScrollAuswahlProfile } from '@/utils/DeviceProfiles';
 
-const { width: WINDOW_WIDTH } = Dimensions.get('window');
 const DEFAULT_ITEM_HEIGHT = 50;
 const DEFAULT_VISIBLE_ITEMS = 5;
 
@@ -239,7 +238,7 @@ export function ScrollAuswahl({
 
 const styles = StyleSheet.create({
     container: {
-        width: WINDOW_WIDTH - 32,
+        width: '100%',
         overflow: 'hidden',
     },
     scrollView: {},
@@ -247,6 +246,7 @@ const styles = StyleSheet.create({
     item: {
         justifyContent: 'center',
         paddingHorizontal: 20,
+        paddingVertical: 5,
     },
     itemText: {
         fontFamily: 'OverlockRegular',

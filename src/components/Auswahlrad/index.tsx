@@ -11,7 +11,7 @@ import {
 import { AutorImages } from '@/constants/Weltanschauungen';
 import { PanResponder } from 'react-native';
 
-import { Autor } from '@12weltanschauungen/backend/src/models/Autor';
+import { Autor } from '../../../packages/backend/src/models/Autor';
 import { Colors } from './Colors';
 
 const windowWidth = Dimensions.get('window').width;
@@ -79,6 +79,7 @@ export function AuswahlRad({
     const rotateAnim = useRef(new Animated.Value(0)).current; // Animation driver
     const minAngleChange = 0.5; // Minimum angle change to trigger rotation update
     const lastTapTimeRef = useRef(0); // Track the last tap time for double tap detection
+    const lastPanReleaseTimeRef = useRef(0);
 
     // Initialize rotation value when component mounts or screen changes
     useEffect(() => {
@@ -98,6 +99,11 @@ export function AuswahlRad({
             const newValue = (12 - weltanschauungIndex) % 12;
             rotateValueFinalRef.current = newValue;
 
+            console.log(1, 'index.tsx:96', {
+                weltanschauungIndex,
+                newValue,
+            });
+
             // Calculate the shortest rotation path
             let distance = Math.abs(rotateValueRef.current - newValue);
             if (distance > 6) {
@@ -112,7 +118,7 @@ export function AuswahlRad({
                     40,
                     40 + minTapDistanceFromCenter / Math.max(0.1, distance)
                 ),
-                useNativeDriver: true,
+                useNativeDriver: false,
                 velocity: 0.5,
             }).start();
         }
@@ -133,8 +139,15 @@ export function AuswahlRad({
      * Animates the wheel to position the selected author at the top
      */
     const handleAutorPress = (index: number) => {
+        // Prevent tap handling if it occurs within 250ms after a pan gesture
+        if (Date.now() - lastPanReleaseTimeRef.current < 250) {
+            return;
+        }
+
         const now = Date.now();
         const isSelectedAutor = index === weltanschauungIndexRef.current;
+
+        console.log(1, 'index.tsx:144', { index });
 
         // If this is a double tap on the selected author (within 300ms), jump to opposite position
         if (isSelectedAutor && now - lastTapTimeRef.current < 300) {
@@ -152,7 +165,7 @@ export function AuswahlRad({
                 toValue: newValue,
                 friction: 6,
                 tension: 60, // Higher tension for quicker motion
-                useNativeDriver: true,
+                useNativeDriver: false,
                 velocity: 1.5, // Higher initial velocity
             }).start();
 
@@ -167,6 +180,10 @@ export function AuswahlRad({
         // Only update if the index is different (for single taps)
         if (weltanschauungIndexRef.current !== index) {
             // Update weltanschauung index
+            console.log(1, 'index.tsx:175', {
+                weltanschauungIndex: weltanschauungIndexRef.current,
+                index,
+            });
             setWeltanschauungIndex(index);
             weltanschauungIndexRef.current = index;
 
@@ -189,7 +206,7 @@ export function AuswahlRad({
                     minTapDistanceFromCenter +
                         minTapDistanceFromCenter / Math.max(0.1, distance)
                 ),
-                useNativeDriver: true,
+                useNativeDriver: false,
                 velocity: 0.5,
             }).start();
         }
@@ -307,27 +324,41 @@ export function AuswahlRad({
             },
 
             onPanResponderRelease: () => {
+                // Record the time when pan ends
+                lastPanReleaseTimeRef.current = Date.now();
+
                 // Round to nearest position (0-11)
-                const newIndex = Math.round(rotateValueRef.current);
+                const newIndex =
+                    ((Math.round(rotateValueRef.current) % 12) + 12) % 12;
 
                 // Update the weltanschauung index (12 - newIndex makes top = selected)
-                const newWeltanschauungIndex = (12 - newIndex) % 12;
+                const newWeltanschauungIndex = 12 - newIndex;
+
+                console.log(1, 'index.tsx:316', {
+                    rotateValue: rotateValueRef.current,
+                    newIndex,
+                    newWeltanschauungIndex,
+                    weltanschauungIndex: weltanschauungIndexRef.current,
+                });
 
                 // Only update if the index has changed
                 if (weltanschauungIndexRef.current !== newWeltanschauungIndex) {
                     setWeltanschauungIndex(newWeltanschauungIndex);
                     weltanschauungIndexRef.current = newWeltanschauungIndex;
+                    console.log(1, 'index.tsx:327', {
+                        weltanschauungIndex: weltanschauungIndexRef.current,
+                    });
                 }
 
                 // Store final rotation value for continuity with next gesture
-                rotateValueFinalRef.current = newIndex % 12;
+                rotateValueFinalRef.current = newIndex;
 
                 // Snap animation to nearest position
                 Animated.spring(rotateAnim, {
                     toValue: newIndex,
                     friction: 5,
                     tension: 40,
-                    useNativeDriver: true,
+                    useNativeDriver: false,
                 }).start();
             },
         })
