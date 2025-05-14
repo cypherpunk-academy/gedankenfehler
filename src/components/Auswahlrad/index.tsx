@@ -311,9 +311,9 @@ export function AuswahlRad({
 
                 // Convert angle to rotation value (each position is 30° apart)
                 const rotationChange = angleDiff / 30;
-
-                // Calculate new rotation value
-                const newValue = initialRotationRef.current + rotationChange;
+                const scaleFactor = windowWidth / 1000;
+                const newValue =
+                    initialRotationRef.current + rotationChange * scaleFactor;
 
                 // Apply the rotation
                 rotateAnim.setValue(newValue);

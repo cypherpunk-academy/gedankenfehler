@@ -23,14 +23,6 @@ export function getDeviceType(): DeviceType {
         const width = dimensions.width;
         const isWeb = Platform.OS === 'web';
 
-        console.log(1, 'DeviceProfiles.ts:37', { dimensions, isWeb });
-
-        console.log('DeviceProfiles getDeviceType:', {
-            width,
-            platform: Platform.OS,
-            isWeb,
-        });
-
         // For native platforms
         if (!isWeb) {
             const smallerDimension = Math.min(
@@ -39,8 +31,6 @@ export function getDeviceType(): DeviceType {
             );
             return smallerDimension < 600 ? 'smartphone' : 'tablet';
         }
-
-        console.log(1, 'DeviceProfiles.ts:54', { width });
 
         // For web - if we have a valid width
         if (width && width > 0) {
