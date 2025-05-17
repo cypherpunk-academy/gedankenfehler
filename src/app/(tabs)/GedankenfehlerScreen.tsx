@@ -1,10 +1,9 @@
-import React, { useContext, useMemo, useRef } from 'react';
+import React, { useCallback, useContext, useMemo, useRef } from 'react';
 import {
     StyleSheet,
     View,
     Animated,
     Dimensions,
-    ScrollView,
     ActivityIndicator,
     useColorScheme,
     TouchableOpacity,
@@ -29,13 +28,6 @@ const windowWidth = Dimensions.get('window').width;
 
 // AuswahlRad config - now handled by device profiles
 
-const dynamicFontSizes = {
-    small: 15,
-    medium: 17,
-    large: 18,
-    xlarge: 20,
-};
-
 export default function GedankenfehlerScreen() {
     const router = useRouter();
 
@@ -43,6 +35,7 @@ export default function GedankenfehlerScreen() {
     const deviceProfile = useDeviceProfile(getScreenProfiles());
     const auswahlRadOptions = deviceProfile.auswahlRad;
     const scrollAuswahlOptions = deviceProfile.scrollAuswahl;
+    const deviceType = deviceProfile.deviceType;
 
     const styles = getStyles(deviceProfile);
 
@@ -111,7 +104,7 @@ export default function GedankenfehlerScreen() {
 
     const scrollPickerY = useRef(new Animated.Value(0)).current;
 
-    const currentGedankeKurz = useMemo(() => {
+    const currentGedanke = useMemo(() => {
         if (!allGedanken) return null;
 
         const gedanke = allGedanken.find(
@@ -119,19 +112,26 @@ export default function GedankenfehlerScreen() {
                 g.nummer === nummer &&
                 g.weltanschauung === currentWeltanschauung
         );
-        return gedanke ? gedanke.gedanke_kurz : null;
+        return gedanke;
     }, [allGedanken, nummer, currentWeltanschauung]);
 
     // Dynamic font sizing based on text length
-    const dynamicFontSize = useMemo(() => {
-        if (!currentGedankeKurz) return dynamicFontSizes.large;
-        const wordCount = currentGedankeKurz.trim().split(/\s+/).length;
+    const dynamicFontSize = useCallback(
+        (fontSize: number) => {
+            if (!currentGedanke?.gedanke_kurz || deviceType !== 'smartphone')
+                return fontSize;
 
-        if (wordCount > 50) return dynamicFontSizes.small;
-        if (wordCount > 40) return dynamicFontSizes.medium;
-        if (wordCount > 25) return dynamicFontSizes.large;
-        return dynamicFontSizes.xlarge;
-    }, [currentGedankeKurz]);
+            const wordCount = currentGedanke.gedanke_kurz
+                .trim()
+                .split(/\s+/).length;
+
+            if (wordCount > 50) return fontSize * 0.8;
+            if (wordCount > 40) return fontSize * 0.9;
+            if (wordCount > 25) return fontSize;
+            return fontSize * 1.2;
+        },
+        [currentGedanke]
+    );
 
     // Fade title on scroll
     const opacityInterpolation = scrollPickerY.interpolate({
@@ -202,21 +202,31 @@ export default function GedankenfehlerScreen() {
                             <ThemedText style={styles.canvasGedankeKurzLabel}>
                                 {currentAutor.name}
                             </ThemedText>
-                            <ThemedText
-                                style={styles.canvasGedankeKurzContainer}
-                            >
+                            <View style={styles.canvasGedankeKurzContainer}>
                                 <ThemedText
                                     style={[
                                         styles.canvasGedankeKurz,
                                         {
-                                            fontSize: dynamicFontSize,
-                                            lineHeight: dynamicFontSize * 1.4,
+                                            fontSize: dynamicFontSize(
+                                                styles.canvasGedankeKurz
+                                                    .fontSize
+                                            ),
+                                            lineHeight:
+                                                dynamicFontSize(
+                                                    styles.canvasGedankeKurz
+                                                        .fontSize
+                                                ) * 1.4,
                                         },
                                     ]}
                                 >
-                                    {currentGedankeKurz?.trim()}
+                                    {currentGedanke?.gedanke_kurz?.trim()}
                                 </ThemedText>
-                            </ThemedText>
+                                {deviceType === 'webLarge' && (
+                                    <ThemedText style={[styles.canvasGedanke]}>
+                                        {`\n\n${currentGedanke?.gedanke?.trim()}`}
+                                    </ThemedText>
+                                )}
+                            </View>
                         </ThemedView>
                     </TouchableOpacity>
                 )}
@@ -250,11 +260,11 @@ const getScreenProfiles = (): Record<DeviceType, ScreenProfiles> => {
         smartphone: {
             container: {
                 flexDirection: 'column',
-                marginTop: 20,
+                marginTop: 40,
                 titleHeight: 50,
             },
-            titleTextGedankenfehler: {
-                fontSize: 22,
+            titleTextWeltanschauungen: {
+                marginTop: 5,
             },
             scrollAuswahl: {
                 itemHeight: 60,
@@ -274,8 +284,11 @@ const getScreenProfiles = (): Record<DeviceType, ScreenProfiles> => {
             canvasViewContainer: {
                 width: 380,
                 height: 250,
-                marginTop: 190,
-                marginLeft: -30,
+                marginTop: 210,
+            },
+            canvasGedanke: {
+                fontSize: 18,
+                marginHorizontal: 7,
             },
         },
         tablet: {
@@ -283,9 +296,6 @@ const getScreenProfiles = (): Record<DeviceType, ScreenProfiles> => {
                 flexDirection: 'column',
                 marginTop: 20,
                 titleHeight: 50,
-            },
-            titleTextGedankenfehler: {
-                fontSize: 24,
             },
             auswahlRad: {
                 circleSize: 722,
@@ -309,9 +319,6 @@ const getScreenProfiles = (): Record<DeviceType, ScreenProfiles> => {
                 marginTop: 20,
                 titleHeight: 50,
             },
-            titleTextGedankenfehler: {
-                fontSize: 24,
-            },
             auswahlRad: {
                 circleSize: 850,
                 circleOffsetX: -170,
@@ -334,9 +341,6 @@ const getScreenProfiles = (): Record<DeviceType, ScreenProfiles> => {
                 marginTop: 0,
                 titleHeight: 60,
             },
-            titleTextGedankenfehler: {
-                fontSize: 24,
-            },
             auswahlRad: {
                 circleSize: 850,
                 circleOffsetX: -170,
@@ -354,10 +358,13 @@ const getScreenProfiles = (): Record<DeviceType, ScreenProfiles> => {
             },
         },
         webLarge: {
-            container: { flexDirection: 'row', marginTop: 0, titleHeight: 60 },
-            titleTextGedankenfehler: {
-                fontSize: 32,
+            container: {
+                flexDirection: 'row',
+                marginTop: 0,
+                titleHeight: 60,
+                padding: 16,
             },
+            gedankenfehlerContainer: { paddingRight: 16 },
             scrollAuswahl: {
                 itemHeight: 80,
                 visibleItems: 10,
@@ -375,9 +382,13 @@ const getScreenProfiles = (): Record<DeviceType, ScreenProfiles> => {
             },
             canvasViewContainer: {
                 width: 1100,
-                height: 550,
+                height: 600,
                 marginTop: 310,
-                marginLeft: -30,
+                marginLeft: 0,
+            },
+            canvasGedanke: {
+                fontSize: 24,
+                marginHorizontal: '20%',
             },
         },
     };
@@ -388,9 +399,6 @@ const getStyles = (deviceProfile: ScreenProfiles) => {
     const colorScheme = useColorScheme();
     const theme: 'light' | 'dark' = colorScheme === 'dark' ? 'dark' : 'light';
     const flexDirection = deviceProfile.container?.flexDirection || 'column';
-    const titleTextFontSize =
-        deviceProfile.titleTextGedankenfehler?.fontSize || 24;
-    const titleTextLineHeight = titleTextFontSize * 1.3;
 
     return StyleSheet.create({
         // Layout container
@@ -398,18 +406,19 @@ const getStyles = (deviceProfile: ScreenProfiles) => {
             flex: 1,
             flexDirection,
             marginTop: deviceProfile.container?.marginTop || 0,
-            padding: 16,
+            padding: deviceProfile.container?.padding || 0,
         },
         gedankenfehlerContainer: {
             width: flexDirection === 'row' ? '40%' : '100%',
-            paddingRight: 8,
+            paddingRight:
+                deviceProfile.gedankenfehlerContainer?.paddingRight || 0,
             position: 'relative',
             alignItems: 'center',
         },
         weltanschuungenContainer: {
             position: 'relative',
             width: flexDirection === 'row' ? '60%' : windowWidth,
-            overflow: 'hidden',
+            overflow: flexDirection === 'row' ? 'hidden' : 'visible',
         },
         loadingContainer: {
             flex: 1,
@@ -421,12 +430,11 @@ const getStyles = (deviceProfile: ScreenProfiles) => {
         titleTextGedankenfehler: {
             position: 'relative',
             width: '100%',
-            height: deviceProfile.container?.titleHeight || 32,
             padding: 5,
             marginBottom: 10,
             fontFamily: 'OverlockBold',
-            fontSize: titleTextFontSize,
-            lineHeight: titleTextLineHeight,
+            fontSize: 32,
+            lineHeight: 48,
             textAlign: 'center',
             borderTopWidth: 0.5,
             borderBottomWidth: 0.5,
@@ -442,7 +450,7 @@ const getStyles = (deviceProfile: ScreenProfiles) => {
             fontFamily: 'OverlockBold',
             fontSize: 32,
             lineHeight: 48,
-            marginTop: deviceProfile.container?.marginTop || 0,
+            marginTop: deviceProfile.titleTextWeltanschauungen?.marginTop || 0,
             textAlign: 'center',
             borderTopWidth: 0.5,
             borderBottomWidth: 0.5,
@@ -462,7 +470,7 @@ const getStyles = (deviceProfile: ScreenProfiles) => {
             width: deviceProfile.canvasViewContainer?.width || 370,
             height: deviceProfile.canvasViewContainer?.height || 250,
             marginTop: deviceProfile.canvasViewContainer?.marginTop || 190,
-            marginLeft: deviceProfile.canvasViewContainer?.marginLeft || -30,
+            marginLeft: deviceProfile.canvasViewContainer?.marginLeft || 0,
             zIndex: 10,
             alignSelf: 'center',
             alignItems: 'center',
@@ -473,7 +481,7 @@ const getStyles = (deviceProfile: ScreenProfiles) => {
             position: 'absolute',
             width: '100%',
             height: '113%',
-            top: -10,
+            top: -30,
             padding: 0,
             alignItems: 'center',
             justifyContent: 'flex-start',
@@ -504,9 +512,9 @@ const getStyles = (deviceProfile: ScreenProfiles) => {
             elevation: 8,
         },
         canvasWeltanschauungTitle: {
-            marginTop: 15,
             fontFamily: 'OverlockBold',
             fontSize: 28,
+            marginTop: 15,
             lineHeight: 28,
             color: TabsColors[theme].weltanschauungenDefaultColor,
             textAlign: 'center',
@@ -524,8 +532,19 @@ const getStyles = (deviceProfile: ScreenProfiles) => {
         },
         canvasGedankeKurz: {
             fontFamily: 'OverlockBold',
+            fontSize: deviceProfile.canvasGedanke?.fontSize || 24,
+            lineHeight: deviceProfile.canvasGedanke?.fontSize || 24 * 1.4,
             color: TabsColors[theme].weltanschauungenDefaultColor,
             textAlign: 'center',
+            marginHorizontal: deviceProfile.canvasGedanke?.marginHorizontal,
+            backgroundColor: 'transparent',
+        },
+        canvasGedanke: {
+            fontFamily: 'OverlockRegular',
+            fontSize: deviceProfile.canvasGedanke?.fontSize || 24,
+            lineHeight: deviceProfile.canvasGedanke?.fontSize || 24 * 1.4,
+            color: TabsColors[theme].weltanschauungenDefaultColor,
+            textAlign: 'justify',
             backgroundColor: 'transparent',
         },
 

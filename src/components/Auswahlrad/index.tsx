@@ -340,12 +340,30 @@ export function AuswahlRad({
                     weltanschauungIndexRef.current = newWeltanschauungIndex;
                 }
 
+                console.log(1, 'index.tsx:343', {
+                    oldIndex: rotateValueFinalRef.current,
+                    newIndex,
+                });
                 // Store final rotation value for continuity with next gesture
                 rotateValueFinalRef.current = newIndex;
 
-                // Snap animation to nearest position
+                // Calculate the shortest rotation path
+                let directPath = newIndex;
+                let distance = Math.abs(rotateValueRef.current - newIndex);
+
+                // If the distance is more than half the wheel (6 positions), take the shorter path
+                if (distance > 6) {
+                    // Adjust the target value to create a shorter rotation path
+                    if (newIndex > rotateValueRef.current) {
+                        directPath = newIndex - 12;
+                    } else {
+                        directPath = newIndex + 12;
+                    }
+                }
+
+                // Snap animation to nearest position using the shortest path
                 Animated.spring(rotateAnim, {
-                    toValue: newIndex,
+                    toValue: directPath,
                     friction: 5,
                     tension: 40,
                     useNativeDriver: false,

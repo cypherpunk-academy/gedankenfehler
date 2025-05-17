@@ -1,4 +1,4 @@
-import { Dimensions, Platform, ScaledSize } from 'react-native';
+import { Dimensions, DimensionValue, Platform, ScaledSize } from 'react-native';
 import React from 'react';
 
 // Device type detection
@@ -11,9 +11,6 @@ export type DeviceType =
 
 // Default fallback size for SSR or when dimensions are not available
 const DEFAULT_WEB_DEVICE_TYPE: DeviceType = 'webMedium';
-
-// Safely check if window exists
-const isClient = typeof window !== 'undefined';
 
 export function getDeviceType(): DeviceType {
     try {
@@ -78,18 +75,29 @@ export interface ScrollAuswahlProfile {
 export interface ScreenProfiles {
     container?: {
         flexDirection: 'column' | 'row';
-        marginTop: number;
-        titleHeight: number;
+        marginTop?: number;
+        titleHeight?: number;
+        padding?: number;
     };
-    titleTextGedankenfehler?: { fontSize: number };
+    gedankenfehlerContainer?: {
+        paddingRight: number;
+    };
+    titleTextWeltanschauungen?: {
+        marginTop?: number;
+    };
     auswahlRad: AuswahlRadProfile;
     kommentarKreuz?: KommentarKreuzProfile;
     scrollAuswahl?: ScrollAuswahlProfile;
     canvasViewContainer?: {
-        width: number;
-        height: number;
-        marginTop: number;
-        marginLeft: number;
+        width?: number;
+        height?: number;
+        marginTop?: number;
+        marginLeft?: number;
+    };
+    deviceType?: DeviceType;
+    canvasGedanke?: {
+        fontSize: number;
+        marginHorizontal: DimensionValue;
     };
 }
 
@@ -293,5 +301,5 @@ export function useDeviceProfile<T extends Record<DeviceType, ScreenProfiles>>(
         };
     }, []);
 
-    return profiles[deviceType];
+    return { ...profiles[deviceType], deviceType };
 }
