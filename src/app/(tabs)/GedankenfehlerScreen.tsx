@@ -372,7 +372,7 @@ const getScreenProfiles = (): Record<DeviceType, ScreenProfiles> => {
                 autorImageRadiusLarge: 8,
             },
             canvasViewContainer: {
-                marginTop: 210,
+                marginTop: 190,
             },
             canvasWeltanschauungTitle: {
                 fontSize: 28,
