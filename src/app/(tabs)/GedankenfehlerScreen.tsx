@@ -9,8 +9,6 @@ import {
     TouchableOpacity,
     Platform,
     ScrollView,
-    FlexAlignType,
-    ViewStyle,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 
@@ -374,8 +372,6 @@ const getScreenProfiles = (): Record<DeviceType, ScreenProfiles> => {
                 autorImageRadiusLarge: 8,
             },
             canvasViewContainer: {
-                width: 380,
-                height: 250,
                 marginTop: 210,
             },
             canvasWeltanschauungTitle: {
@@ -478,13 +474,11 @@ const getScreenProfiles = (): Record<DeviceType, ScreenProfiles> => {
                 autorImageRadiusLarge: 12,
             },
             canvasViewContainer: {
-                width: 1100,
-                height: 600,
                 marginTop: 310,
                 marginLeft: 0,
             },
             canvasWeltanschauungTitle: {
-                fontSize: 42,
+                fontSize: 32,
             },
             canvasGedankeKurzLabel: {
                 fontSize: 20,
@@ -575,8 +569,6 @@ const getStyles = (deviceProfile: ScreenProfiles) => {
 
         // Center container and elements
         canvasViewContainer: {
-            width: deviceProfile.canvasViewContainer?.width || 370,
-            height: deviceProfile.canvasViewContainer?.height || 250,
             marginTop: deviceProfile.canvasViewContainer?.marginTop || 190,
             marginLeft: deviceProfile.canvasViewContainer?.marginLeft || 0,
             zIndex: 10,

@@ -50,6 +50,7 @@ export function ScrollAuswahl({
     const VISIBLE_ITEMS = options?.visibleItems || DEFAULT_VISIBLE_ITEMS;
     const CONTAINER_HEIGHT = ITEM_HEIGHT * VISIBLE_ITEMS;
     const FONT_SIZE = options?.fontSize || 18;
+    const LINE_HEIGHT = options?.fontSize ? options.fontSize * 1.3 : 27;
 
     // Move scroll logic to a separate function
     const scrollToPosition = useCallback((y: number) => {
@@ -168,7 +169,7 @@ export function ScrollAuswahl({
                     <ThemedText
                         style={[
                             styles.itemText,
-                            { fontSize: FONT_SIZE },
+                            { fontSize: FONT_SIZE, lineHeight: LINE_HEIGHT },
                             selectedValue === item.nummer &&
                                 styles.selectedItemText,
                         ]}
