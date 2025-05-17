@@ -7,6 +7,10 @@ import {
     ActivityIndicator,
     useColorScheme,
     TouchableOpacity,
+    Platform,
+    ScrollView,
+    FlexAlignType,
+    ViewStyle,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 
@@ -27,6 +31,111 @@ import {
 const windowWidth = Dimensions.get('window').width;
 
 // AuswahlRad config - now handled by device profiles
+
+// Define the props interface for both components
+interface GedankenViewProps {
+    styles: any; // Use 'any' to avoid StyleSheet.create return type complexity
+    currentWeltanschauung: string;
+    currentAutor: { name: string; [key: string]: any };
+    currentGedanke: {
+        gedanke_kurz?: string;
+        gedanke?: string;
+        id?: string;
+        nummer?: number;
+        model?: string;
+        autorId?: string;
+        weltanschauung?: string;
+        created_at?: string;
+        ausgangsgedanke?: string;
+        ausgangsgedanke_in_weltanschauung?: string;
+        gedanke_einfach?: string;
+        rank?: number;
+        autor?: string | null;
+        [key: string]: any;
+    };
+    deviceType: DeviceType;
+    dynamicFontSize?: (fontSize: number) => number;
+    handleNavigateToNextScreen?: () => void;
+}
+
+// Mobile-specific view component
+const MobileGedankenView: React.FC<GedankenViewProps> = ({
+    styles,
+    currentWeltanschauung,
+    currentAutor,
+    currentGedanke,
+    dynamicFontSize,
+    handleNavigateToNextScreen,
+}) => {
+    // Get the font size safely
+    const rawFontSize = styles.canvasGedankeKurz?.fontSize ?? 24;
+    const fontSize = dynamicFontSize
+        ? dynamicFontSize(rawFontSize)
+        : rawFontSize;
+    const lineHeight = dynamicFontSize
+        ? dynamicFontSize(rawFontSize) * 1.4
+        : rawFontSize * 1.4;
+
+    return (
+        <TouchableOpacity
+            style={styles.canvasViewContainer}
+            className="canvasViewContainer"
+            onPress={handleNavigateToNextScreen}
+            activeOpacity={0.8}
+        >
+            <ThemedView style={styles.canvasWeltanschauungContainer}>
+                <ThemedText style={styles.canvasWeltanschauungTitle}>
+                    {currentWeltanschauung}
+                </ThemedText>
+                <ThemedText style={styles.canvasGedankeKurzLabel}>
+                    {currentAutor.name}
+                </ThemedText>
+                <View style={styles.canvasGedankeKurzContainer}>
+                    <ThemedText
+                        style={[
+                            styles.canvasGedankeKurz,
+                            {
+                                fontSize,
+                                lineHeight,
+                            },
+                        ]}
+                    >
+                        {currentGedanke?.gedanke_kurz?.trim()}
+                    </ThemedText>
+                </View>
+            </ThemedView>
+        </TouchableOpacity>
+    );
+};
+
+// Web-specific view component with scrollable text
+const WebGedankenView: React.FC<GedankenViewProps> = ({
+    styles,
+    currentWeltanschauung,
+    currentAutor,
+    currentGedanke,
+}) => {
+    return (
+        <ScrollView style={styles.canvasViewContainer}>
+            <ThemedView style={styles.canvasWeltanschauungContainer}>
+                <ThemedText style={styles.canvasWeltanschauungTitle}>
+                    {currentWeltanschauung}
+                </ThemedText>
+                <ThemedText style={styles.canvasGedankeKurzLabel}>
+                    {currentAutor.name}
+                </ThemedText>
+                <View style={styles.canvasGedankeKurzContainer}>
+                    <ThemedText style={styles.canvasGedankeKurz}>
+                        {currentGedanke?.gedanke_kurz?.trim()}
+                    </ThemedText>
+                    <ThemedText style={styles.canvasGedanke}>
+                        {`${currentGedanke?.gedanke?.trim()}`}
+                    </ThemedText>
+                </View>
+            </ThemedView>
+        </ScrollView>
+    );
+};
 
 export default function GedankenfehlerScreen() {
     const router = useRouter();
@@ -162,6 +271,9 @@ export default function GedankenfehlerScreen() {
         );
     }
 
+    // Check if this is a web platform
+    const isWeb = Platform.OS === 'web';
+
     return (
         <ThemedView style={styles.container}>
             {/* Left side - Gedankenfehlerauswahl (30%) */}
@@ -185,51 +297,31 @@ export default function GedankenfehlerScreen() {
                 <ThemedText style={{ ...styles.titleTextWeltanschauungen }}>
                     12 Weltanschauungen
                 </ThemedText>
-                {currentWeltanschauung && currentAutor && (
-                    <TouchableOpacity
-                        style={[styles.canvasViewContainer]}
-                        onPress={handleNavigateToNextScreen}
-                        activeOpacity={0.8}
-                    >
-                        <ThemedView
-                            style={styles.canvasWeltanschauungContainer}
-                        >
-                            <ThemedText
-                                style={styles.canvasWeltanschauungTitle}
-                            >
-                                {currentWeltanschauung}
-                            </ThemedText>
-                            <ThemedText style={styles.canvasGedankeKurzLabel}>
-                                {currentAutor.name}
-                            </ThemedText>
-                            <View style={styles.canvasGedankeKurzContainer}>
-                                <ThemedText
-                                    style={[
-                                        styles.canvasGedankeKurz,
-                                        {
-                                            fontSize: dynamicFontSize(
-                                                styles.canvasGedankeKurz
-                                                    .fontSize
-                                            ),
-                                            lineHeight:
-                                                dynamicFontSize(
-                                                    styles.canvasGedankeKurz
-                                                        .fontSize
-                                                ) * 1.4,
-                                        },
-                                    ]}
-                                >
-                                    {currentGedanke?.gedanke_kurz?.trim()}
-                                </ThemedText>
-                                {deviceType === 'webLarge' && (
-                                    <ThemedText style={[styles.canvasGedanke]}>
-                                        {`\n\n${currentGedanke?.gedanke?.trim()}`}
-                                    </ThemedText>
-                                )}
-                            </View>
-                        </ThemedView>
-                    </TouchableOpacity>
-                )}
+                {currentWeltanschauung &&
+                    currentAutor &&
+                    currentGedanke &&
+                    deviceType &&
+                    (isWeb ? (
+                        <WebGedankenView
+                            styles={styles}
+                            currentWeltanschauung={currentWeltanschauung}
+                            currentAutor={currentAutor}
+                            currentGedanke={currentGedanke}
+                            deviceType={deviceType}
+                        />
+                    ) : (
+                        <MobileGedankenView
+                            styles={styles}
+                            currentWeltanschauung={currentWeltanschauung}
+                            currentAutor={currentAutor}
+                            currentGedanke={currentGedanke}
+                            deviceType={deviceType}
+                            dynamicFontSize={dynamicFontSize}
+                            handleNavigateToNextScreen={
+                                handleNavigateToNextScreen
+                            }
+                        />
+                    ))}
                 {/* Worldview selection wheel */}
                 <ThemedView
                     style={[
@@ -286,9 +378,14 @@ const getScreenProfiles = (): Record<DeviceType, ScreenProfiles> => {
                 height: 250,
                 marginTop: 210,
             },
-            canvasGedanke: {
+            canvasWeltanschauungTitle: {
+                fontSize: 28,
+            },
+            canvasGedankeKurzLabel: {
+                fontSize: 14,
+            },
+            canvasGedankeKurz: {
                 fontSize: 18,
-                marginHorizontal: 7,
             },
         },
         tablet: {
@@ -386,9 +483,20 @@ const getScreenProfiles = (): Record<DeviceType, ScreenProfiles> => {
                 marginTop: 310,
                 marginLeft: 0,
             },
+            canvasWeltanschauungTitle: {
+                fontSize: 42,
+            },
+            canvasGedankeKurzLabel: {
+                fontSize: 20,
+            },
+            canvasGedankeKurz: {
+                fontSize: 24,
+                marginVertical: 10,
+                marginHorizontal: '20%',
+            },
             canvasGedanke: {
                 fontSize: 24,
-                marginHorizontal: '20%',
+                marginVertical: 20,
             },
         },
     };
@@ -473,16 +581,14 @@ const getStyles = (deviceProfile: ScreenProfiles) => {
             marginLeft: deviceProfile.canvasViewContainer?.marginLeft || 0,
             zIndex: 10,
             alignSelf: 'center',
-            alignItems: 'center',
-            justifyContent: 'center',
         },
         canvasWeltanschauungContainer: {
             // Size and positioning
-            position: 'absolute',
+            position: 'relative',
             width: '100%',
-            height: '113%',
-            top: -30,
-            padding: 0,
+            top: 0,
+            paddingHorizontal: 0,
+            paddingBottom: 20,
             alignItems: 'center',
             justifyContent: 'flex-start',
             overflow: 'hidden',
@@ -510,18 +616,20 @@ const getStyles = (deviceProfile: ScreenProfiles) => {
             shadowOpacity: 1,
             shadowRadius: 5,
             elevation: 8,
+            marginBottom: 30,
         },
         canvasWeltanschauungTitle: {
             fontFamily: 'OverlockBold',
-            fontSize: 28,
+            fontSize: deviceProfile.canvasWeltanschauungTitle?.fontSize || 42,
             marginTop: 15,
-            lineHeight: 28,
+            lineHeight:
+                (deviceProfile.canvasWeltanschauungTitle?.fontSize || 28) * 1.5,
             color: TabsColors[theme].weltanschauungenDefaultColor,
             textAlign: 'center',
         },
         canvasGedankeKurzLabel: {
             fontFamily: 'OverlockRegular',
-            fontSize: 14,
+            fontSize: deviceProfile.canvasGedankeKurzLabel?.fontSize || 14,
             color: TabsColors[theme].weltanschauungenDefaultColor,
             textAlign: 'center',
             backgroundColor: 'transparent',
@@ -532,20 +640,24 @@ const getStyles = (deviceProfile: ScreenProfiles) => {
         },
         canvasGedankeKurz: {
             fontFamily: 'OverlockBold',
-            fontSize: deviceProfile.canvasGedanke?.fontSize || 24,
-            lineHeight: deviceProfile.canvasGedanke?.fontSize || 24 * 1.4,
+            fontSize: deviceProfile.canvasGedankeKurz?.fontSize || 24,
+            lineHeight: (deviceProfile.canvasGedankeKurz?.fontSize || 24) * 1.5,
             color: TabsColors[theme].weltanschauungenDefaultColor,
             textAlign: 'center',
-            marginHorizontal: deviceProfile.canvasGedanke?.marginHorizontal,
+            marginHorizontal: deviceProfile.canvasGedankeKurz?.marginHorizontal,
+            marginVertical:
+                deviceProfile.canvasGedankeKurz?.marginVertical ?? 0,
             backgroundColor: 'transparent',
         },
         canvasGedanke: {
             fontFamily: 'OverlockRegular',
             fontSize: deviceProfile.canvasGedanke?.fontSize || 24,
-            lineHeight: deviceProfile.canvasGedanke?.fontSize || 24 * 1.4,
+            lineHeight: (deviceProfile.canvasGedanke?.fontSize || 24) * 1.45,
             color: TabsColors[theme].weltanschauungenDefaultColor,
             textAlign: 'justify',
             backgroundColor: 'transparent',
+            marginVertical: deviceProfile.canvasGedanke?.marginVertical ?? 0,
+            paddingHorizontal: 15,
         },
 
         // Auswahl wheel

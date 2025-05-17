@@ -97,7 +97,19 @@ export interface ScreenProfiles {
     deviceType?: DeviceType;
     canvasGedanke?: {
         fontSize: number;
-        marginHorizontal: DimensionValue;
+        marginHorizontal?: DimensionValue;
+        marginVertical?: DimensionValue;
+    };
+    canvasWeltanschauungTitle?: {
+        fontSize?: number;
+    };
+    canvasGedankeKurzLabel?: {
+        fontSize?: number;
+    };
+    canvasGedankeKurz?: {
+        fontSize?: number;
+        marginHorizontal?: DimensionValue;
+        marginVertical?: DimensionValue;
     };
 }
 
