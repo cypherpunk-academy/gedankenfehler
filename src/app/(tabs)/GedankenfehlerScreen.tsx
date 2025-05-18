@@ -274,7 +274,6 @@ export default function GedankenfehlerScreen() {
 
     return (
         <ThemedView style={styles.container}>
-            {/* Left side - Gedankenfehlerauswahl (30%) */}
             <ThemedView style={styles.gedankenfehlerContainer}>
                 <ThemedText style={styles.titleTextGedankenfehler}>
                     {`${alleAusgangsgedanken.length} Gedankenfehler`}
@@ -289,8 +288,6 @@ export default function GedankenfehlerScreen() {
                     options={scrollAuswahlOptions}
                 />
             </ThemedView>
-
-            {/* Right side - Main thought display and wheel (70%) */}
             <ThemedView style={styles.weltanschuungenContainer}>
                 <ThemedText style={{ ...styles.titleTextWeltanschauungen }}>
                     12 Weltanschauungen
@@ -299,7 +296,7 @@ export default function GedankenfehlerScreen() {
                     currentAutor &&
                     currentGedanke &&
                     deviceType &&
-                    (isWeb ? (
+                    (isWeb && deviceType !== 'webSmall' ? (
                         <WebGedankenView
                             styles={styles}
                             currentWeltanschauung={currentWeltanschauung}
@@ -409,48 +406,42 @@ const getScreenProfiles = (): Record<DeviceType, ScreenProfiles> => {
         webSmall: {
             container: {
                 flexDirection: 'column',
-                marginTop: 20,
+                marginTop: 0,
                 titleHeight: 50,
             },
-            auswahlRad: {
-                circleSize: 850,
-                circleOffsetX: -170,
-                circleOffsetY: 450,
-                minTapDistanceFromCenter: 20,
-                autorImageSize: 150,
-                autorImageSizeLarge: 230,
-                autorImageRadius: 25,
-                autorImageRadiusLarge: 12,
+            titleTextWeltanschauungen: {
+                marginTop: 5,
             },
             scrollAuswahl: {
-                itemHeight: 60,
-                visibleItems: 5,
+                itemHeight: 45,
+                visibleItems: 3,
                 fontSize: 20,
+            },
+            auswahlRad: {
+                circleSize: 820,
+                circleOffsetX: 0.486 * width - 403,
+                circleOffsetY: 140,
+                minTapDistanceFromCenter: 20,
+                autorImageSize: 170,
+                autorImageSizeLarge: 220,
+                autorImageRadius: 22,
+                autorImageRadiusLarge: 8,
+            },
+            canvasViewContainer: {
+                marginTop: 170,
+            },
+            canvasWeltanschauungTitle: {
+                fontSize: 28,
+            },
+            canvasGedankeKurzLabel: {
+                fontSize: 14,
+            },
+            canvasGedankeKurz: {
+                fontSize: 20,
+                marginHorizontal: '7%',
             },
         },
         webMedium: {
-            container: {
-                flexDirection: 'row',
-                marginTop: 0,
-                titleHeight: 60,
-            },
-            auswahlRad: {
-                circleSize: 850,
-                circleOffsetX: -170,
-                circleOffsetY: 450,
-                minTapDistanceFromCenter: 20,
-                autorImageSize: 150,
-                autorImageSizeLarge: 230,
-                autorImageRadius: 25,
-                autorImageRadiusLarge: 12,
-            },
-            scrollAuswahl: {
-                itemHeight: 60,
-                visibleItems: 5,
-                fontSize: 20,
-            },
-        },
-        webLarge: {
             container: {
                 flexDirection: 'row',
                 marginTop: 0,
@@ -459,9 +450,9 @@ const getScreenProfiles = (): Record<DeviceType, ScreenProfiles> => {
             },
             gedankenfehlerContainer: { paddingRight: 16 },
             scrollAuswahl: {
-                itemHeight: 70,
+                itemHeight: 80,
                 visibleItems: 10,
-                fontSize: 28,
+                fontSize: 20,
             },
             auswahlRad: {
                 circleSize: 1040,
@@ -475,7 +466,48 @@ const getScreenProfiles = (): Record<DeviceType, ScreenProfiles> => {
             },
             canvasViewContainer: {
                 marginTop: 210,
-                marginLeft: 0,
+            },
+            canvasWeltanschauungTitle: {
+                fontSize: 24,
+            },
+            canvasGedankeKurzLabel: {
+                fontSize: 12,
+            },
+            canvasGedankeKurz: {
+                fontSize: 18,
+                marginVertical: 10,
+                marginHorizontal: '10%',
+            },
+            canvasGedanke: {
+                fontSize: 18,
+                marginVertical: 15,
+            },
+        },
+        webLarge: {
+            container: {
+                flexDirection: 'row',
+                marginTop: 0,
+                titleHeight: 60,
+                padding: 16,
+            },
+            gedankenfehlerContainer: { paddingRight: 16 },
+            scrollAuswahl: {
+                itemHeight: 80,
+                visibleItems: 10,
+                fontSize: 26,
+            },
+            auswahlRad: {
+                circleSize: 1040,
+                circleOffsetX: 0.298 * width - 540,
+                circleOffsetY: 130,
+                minTapDistanceFromCenter: 20,
+                autorImageSize: 170,
+                autorImageSizeLarge: 220,
+                autorImageRadius: 25,
+                autorImageRadiusLarge: 12,
+            },
+            canvasViewContainer: {
+                marginTop: 210,
             },
             canvasWeltanschauungTitle: {
                 fontSize: 28,
