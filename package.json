@@ -11,7 +11,8 @@
         "test": "jest --watchAll",
         "build:android": "eas build -p android --profile production --local",
         "build:apk": "eas build --platform android --profile production",
-        "build:ipa": "eas build --platform ios --profile production"
+        "build:ipa": "eas build --platform ios --profile production",
+        "export:web": "expo export -p web --output-dir dist"
     },
     "jest": {
         "preset": "jest-expo"

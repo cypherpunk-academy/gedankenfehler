@@ -577,13 +577,13 @@ const getStyles = (deviceProfile: ScreenProfiles) => {
         canvasWeltanschauungContainer: {
             // Size and positioning
             position: 'relative',
-            width: '100%',
-            top: 0,
+            width: '95%',
             paddingHorizontal: 0,
             paddingBottom: 20,
             alignItems: 'center',
             justifyContent: 'flex-start',
             overflow: 'hidden',
+            alignSelf: 'center',
 
             // Appearance
             backgroundColor:
