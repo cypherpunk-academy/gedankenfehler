@@ -418,7 +418,7 @@ const getScreenProfiles = (): Record<DeviceType, ScreenProfiles> => {
                 fontSize: 26,
             },
             scrollAuswahl: {
-                itemHeight: 42,
+                itemHeight: 45,
                 visibleItems: 3,
                 fontSize: 20,
             },
@@ -442,7 +442,7 @@ const getScreenProfiles = (): Record<DeviceType, ScreenProfiles> => {
                 fontSize: 14,
             },
             canvasGedankeKurz: {
-                fontSize: 18,
+                fontSize: 20,
                 marginHorizontal: '7%',
             },
         },
