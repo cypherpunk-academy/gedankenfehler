@@ -293,7 +293,7 @@ export default function GedankenfehlerScreen() {
             {/* Right side - Main thought display and wheel (70%) */}
             <ThemedView style={styles.weltanschuungenContainer}>
                 <ThemedText style={{ ...styles.titleTextWeltanschauungen }}>
-                    12 Weltanschauungen Hallo Bassam!
+                    12 Weltanschauungen
                 </ThemedText>
                 {currentWeltanschauung &&
                     currentAutor &&
