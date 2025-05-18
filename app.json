@@ -32,10 +32,13 @@
         },
         "plugins": ["expo-router"],
         "experiments": {
-            "typedRoutes": true
+            "typedRoutes": true,
+            "baseUrl": "/gedankenfehler"
         },
         "extra": {
-            "router": {},
+            "router": {
+                "basePath": "/gedankenfehler"
+            },
             "eas": {
                 "projectId": "4665390e-d5da-4913-a96b-c9fc4c15029d"
             }
