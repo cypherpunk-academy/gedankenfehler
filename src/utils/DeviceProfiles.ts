@@ -84,6 +84,7 @@ export interface ScreenProfiles {
     };
     titleTextWeltanschauungen?: {
         marginTop?: number;
+        fontSize?: number;
     };
     auswahlRad: AuswahlRadProfile;
     kommentarKreuz?: KommentarKreuzProfile;

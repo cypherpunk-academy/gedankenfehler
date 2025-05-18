@@ -352,6 +352,7 @@ const getScreenProfiles = (): Record<DeviceType, ScreenProfiles> => {
             },
             titleTextWeltanschauungen: {
                 marginTop: 5,
+                fontSize: 32,
             },
             scrollAuswahl: {
                 itemHeight: 60,
@@ -387,6 +388,9 @@ const getScreenProfiles = (): Record<DeviceType, ScreenProfiles> => {
                 marginTop: 20,
                 titleHeight: 50,
             },
+            titleTextWeltanschauungen: {
+                fontSize: 32,
+            },
             auswahlRad: {
                 circleSize: 722,
                 circleOffsetX: 300,
@@ -411,9 +415,10 @@ const getScreenProfiles = (): Record<DeviceType, ScreenProfiles> => {
             },
             titleTextWeltanschauungen: {
                 marginTop: 5,
+                fontSize: 26,
             },
             scrollAuswahl: {
-                itemHeight: 45,
+                itemHeight: 42,
                 visibleItems: 3,
                 fontSize: 20,
             },
@@ -437,7 +442,7 @@ const getScreenProfiles = (): Record<DeviceType, ScreenProfiles> => {
                 fontSize: 14,
             },
             canvasGedankeKurz: {
-                fontSize: 20,
+                fontSize: 18,
                 marginHorizontal: '7%',
             },
         },
@@ -449,6 +454,9 @@ const getScreenProfiles = (): Record<DeviceType, ScreenProfiles> => {
                 padding: 16,
             },
             gedankenfehlerContainer: { paddingRight: 16 },
+            titleTextWeltanschauungen: {
+                fontSize: 32,
+            },
             scrollAuswahl: {
                 itemHeight: 80,
                 visibleItems: 10,
@@ -491,6 +499,9 @@ const getScreenProfiles = (): Record<DeviceType, ScreenProfiles> => {
                 padding: 16,
             },
             gedankenfehlerContainer: { paddingRight: 16 },
+            titleTextWeltanschauungen: {
+                fontSize: 32,
+            },
             scrollAuswahl: {
                 itemHeight: 80,
                 visibleItems: 10,
@@ -567,8 +578,10 @@ const getStyles = (deviceProfile: ScreenProfiles) => {
             padding: 5,
             marginBottom: 10,
             fontFamily: 'OverlockBold',
-            fontSize: 32,
-            lineHeight: 48,
+            fontSize: deviceProfile.titleTextWeltanschauungen?.fontSize || 32,
+            lineHeight:
+                (deviceProfile.titleTextWeltanschauungen?.fontSize || 32) *
+                    1.5 || 48,
             textAlign: 'center',
             borderTopWidth: 0.5,
             borderBottomWidth: 0.5,
@@ -582,8 +595,10 @@ const getStyles = (deviceProfile: ScreenProfiles) => {
             width: '100%',
             padding: 5,
             fontFamily: 'OverlockBold',
-            fontSize: 32,
-            lineHeight: 48,
+            fontSize: deviceProfile.titleTextWeltanschauungen?.fontSize || 32,
+            lineHeight:
+                (deviceProfile.titleTextWeltanschauungen?.fontSize || 32) *
+                    1.5 || 48,
             marginTop: deviceProfile.titleTextWeltanschauungen?.marginTop || 0,
             textAlign: 'center',
             borderTopWidth: 0.5,
