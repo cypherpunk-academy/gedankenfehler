@@ -27,7 +27,8 @@
         "web": {
             "bundler": "metro",
             "output": "static",
-            "favicon": "./src/assets/images/favicon.png"
+            "favicon": "./src/assets/images/favicon.png",
+            "publicPath": "/gedankenfehler/"
         },
         "plugins": ["expo-router"],
         "experiments": {
