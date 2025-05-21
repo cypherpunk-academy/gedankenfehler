@@ -1,0 +1,21 @@
+{
+    "yaml.format.enable": true,
+    "yaml.format.singleQuote": false,
+    "yaml.format.bracketSpacing": true,
+    "yaml.format.proseWrap": "preserve",
+    "yaml.format.printWidth": 120,
+    "yaml.validate": true,
+    "editor.formatOnSave": true,
+    "yaml.customTags": [],
+    "yaml.schemas": {},
+    "[yaml]": {
+        "editor.defaultFormatter": "redhat.vscode-yaml",
+        "editor.tabSize": 2,
+        "editor.insertSpaces": true,
+        "editor.indentSize": 2
+    },
+    "yaml.indentation": {
+        "tabSize": 2,
+        "indent": 2
+    }
+}
