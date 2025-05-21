@@ -9,6 +9,7 @@ import {
   Dimensions,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useFocusEffect } from "@react-navigation/native";
 
 import { ThemedText } from "@/components/ThemedText";
 import { TabsColors } from "@/constants/TabsColors";
@@ -22,7 +23,7 @@ import { AuswahlRad } from "@/components/Auswahlrad/index";
 import {
   useDeviceProfile,
   DeviceType,
-  ScreenProfiles,
+  AufloesungsScreenProfile,
 } from "@/utils/DeviceProfiles";
 
 // AuswahlRad config for right bottom corner
@@ -38,14 +39,25 @@ const reactions: Reaction[] = [
 
 const Gedankenkarte = () => {
   const router = useRouter();
-  const styles = getStyles();
   const [showCommentWheel, setShowCommentWheel] = useState(false);
+  const [showCommentContainer, setShowCommentContainer] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
+
+  // Hide comment container when leaving screen
+  useFocusEffect(
+    React.useCallback(() => {
+      return () => {
+        setShowCommentContainer(false);
+        setShowCommentWheel(false);
+      };
+    }, []),
+  );
 
   // Get device profile
   const deviceProfile = useDeviceProfile(getScreenProfiles());
   const auswahlRadOptions = deviceProfile.auswahlRad;
   const kommentarKreuzOptions = deviceProfile.kommentarKreuz;
+  const styles = getStyles(deviceProfile);
 
   // Replace API hooks with context
   const {
@@ -176,6 +188,27 @@ const Gedankenkarte = () => {
     }
   }
 
+  const handleScroll = (event: any) => {
+    const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
+    const paddingToBottom = 20;
+    const isCloseToBottom =
+      layoutMeasurement.height + contentOffset.y >=
+      contentSize.height - paddingToBottom;
+    const isCloseToTop = contentOffset.y <= 20;
+
+    if (isCloseToBottom) {
+      setShowCommentContainer(true);
+    } else if (isCloseToTop) {
+      setShowCommentContainer(false);
+    }
+  };
+
+  // Reset comment container when changing gedanke
+  useEffect(() => {
+    setShowCommentContainer(false);
+    setShowCommentWheel(false);
+  }, [nummer, weltanschauungIndex]);
+
   return (
     <View style={styles.container}>
       <View style={{ flex: 1 }}>
@@ -219,14 +252,14 @@ const Gedankenkarte = () => {
 
             <ThemedView style={styles.textContainer}>
               <View style={styles.gedankenfehlerContainer}>
-                <Text style={styles.gedankenfehler}>
-                  {addFullstopIfMissing(gedankenfehlerText) || ""}
-                </Text>
+                <Text style={styles.gedankenfehler}>{gedankenfehlerText}</Text>
               </View>
 
               <ScrollView
                 ref={scrollViewRef}
                 contentContainerStyle={styles.scrollViewContent}
+                onScroll={handleScroll}
+                scrollEventThrottle={16}
               >
                 <TouchableOpacity
                   onPress={handleNavigateToGedankenfehlerScreen}
@@ -240,21 +273,23 @@ const Gedankenkarte = () => {
                 </TouchableOpacity>
               </ScrollView>
             </ThemedView>
-            <ThemedView style={styles.commentContainer}>
-              <TouchableOpacity onPress={() => setShowCommentWheel(true)}>
-                <Image
-                  source={require("@/assets/images/comment-wheel-icon.png")}
-                  style={styles.commentChoiceVoter}
+            {showCommentContainer && (
+              <ThemedView style={styles.commentContainer}>
+                <TouchableOpacity onPress={() => setShowCommentWheel(true)}>
+                  <Image
+                    source={require("@/assets/images/comment-wheel-icon.png")}
+                    style={styles.commentChoiceVoter}
+                  />
+                </TouchableOpacity>
+                <KommentarKreuz
+                  reactions={aggregatedReactions}
+                  isVisible={showCommentWheel}
+                  onClose={() => setShowCommentWheel(false)}
+                  onSelect={handleCommentSelect}
+                  options={kommentarKreuzOptions}
                 />
-              </TouchableOpacity>
-              <KommentarKreuz
-                reactions={aggregatedReactions}
-                isVisible={showCommentWheel}
-                onClose={() => setShowCommentWheel(false)}
-                onSelect={handleCommentSelect}
-                options={kommentarKreuzOptions}
-              />
-            </ThemedView>
+              </ThemedView>
+            )}
           </>
         )}
       </View>
@@ -276,7 +311,13 @@ const Gedankenkarte = () => {
         )}
       </>
 
-      <View style={{ position: "absolute", top: 600, left: 0 }}>
+      <View
+        style={{
+          position: "absolute",
+          top: deviceProfile.containerTop,
+          left: 0,
+        }}
+      >
         <ThemedView
           style={[
             styles.auswahlradContainer,
@@ -300,38 +341,42 @@ const Gedankenkarte = () => {
   );
 };
 
-const getScreenProfiles = (): Record<DeviceType, ScreenProfiles> => {
+const getScreenProfiles = (): Record<DeviceType, AufloesungsScreenProfile> => {
   const dimensions = Dimensions.get("window");
   const width = dimensions.width;
 
   return {
     smartphone: {
-      container: {
-        marginTop: 40,
-        titleHeight: 50,
-        flexDirection: "column",
+      containerTop: 600,
+      textContainer: {
+        height: 700,
+        marginTop: 30,
+        padding: 20,
+        marginRight: 0,
+        marginLeft: 0,
+      },
+      gedankenfehler: {
+        fontSize: 18,
+      },
+      gedanke: {
+        fontSize: 24,
+      },
+      commentContainer: {
+        height: 100,
+        width: 100,
+        borderRadius: 100,
+        bottom: 95,
+        left: 0,
       },
       auswahlRad: {
         circleSize: 850,
-        circleOffsetX: -80,
+        circleOffsetX: -90,
         circleOffsetY: 130,
         minTapDistanceFromCenter: 20,
         autorImageSize: 170,
         autorImageSizeLarge: 210,
         autorImageRadius: 22,
         autorImageRadiusLarge: 8,
-      },
-      canvasViewContainer: {
-        marginTop: 30,
-      },
-      canvasWeltanschauungTitle: {
-        fontSize: 28,
-      },
-      canvasGedankeKurzLabel: {
-        fontSize: 14,
-      },
-      canvasGedankeKurz: {
-        fontSize: 18,
       },
       kommentarKreuz: {
         containerSize: 280,
@@ -341,10 +386,26 @@ const getScreenProfiles = (): Record<DeviceType, ScreenProfiles> => {
       },
     },
     tablet: {
-      container: {
-        flexDirection: "column",
-        marginTop: 20,
-        titleHeight: 50,
+      containerTop: 600,
+      textContainer: {
+        height: 700,
+        marginTop: 30,
+        padding: 20,
+        marginRight: 0,
+        marginLeft: 0,
+      },
+      gedankenfehler: {
+        fontSize: 20,
+      },
+      gedanke: {
+        fontSize: 22,
+      },
+      commentContainer: {
+        height: 100,
+        width: 100,
+        borderRadius: 100,
+        bottom: 95,
+        left: 0,
       },
       auswahlRad: {
         circleSize: 722,
@@ -364,10 +425,26 @@ const getScreenProfiles = (): Record<DeviceType, ScreenProfiles> => {
       },
     },
     webSmall: {
-      container: {
-        flexDirection: "column",
-        marginTop: 0,
-        titleHeight: 50,
+      containerTop: 600,
+      textContainer: {
+        height: 700,
+        marginTop: 30,
+        padding: 20,
+        marginRight: 0,
+        marginLeft: 0,
+      },
+      gedankenfehler: {
+        fontSize: 20,
+      },
+      gedanke: {
+        fontSize: 22,
+      },
+      commentContainer: {
+        height: 100,
+        width: 100,
+        borderRadius: 100,
+        bottom: 95,
+        left: 0,
       },
       auswahlRad: {
         circleSize: 820,
@@ -379,19 +456,6 @@ const getScreenProfiles = (): Record<DeviceType, ScreenProfiles> => {
         autorImageRadius: 22,
         autorImageRadiusLarge: 8,
       },
-      canvasViewContainer: {
-        marginTop: 30,
-      },
-      canvasWeltanschauungTitle: {
-        fontSize: 28,
-      },
-      canvasGedankeKurzLabel: {
-        fontSize: 14,
-      },
-      canvasGedankeKurz: {
-        fontSize: 20,
-        marginHorizontal: "7%",
-      },
       kommentarKreuz: {
         containerSize: 350,
         centerCircleSize: 100,
@@ -400,11 +464,26 @@ const getScreenProfiles = (): Record<DeviceType, ScreenProfiles> => {
       },
     },
     webMedium: {
-      container: {
-        flexDirection: "row",
-        marginTop: 0,
-        titleHeight: 60,
-        padding: 16,
+      containerTop: 600,
+      textContainer: {
+        height: 700,
+        marginTop: 30,
+        padding: 20,
+        marginRight: 0,
+        marginLeft: 0,
+      },
+      gedankenfehler: {
+        fontSize: 20,
+      },
+      gedanke: {
+        fontSize: 22,
+      },
+      commentContainer: {
+        height: 100,
+        width: 100,
+        borderRadius: 100,
+        bottom: 95,
+        left: 0,
       },
       auswahlRad: {
         circleSize: 1040,
@@ -415,24 +494,6 @@ const getScreenProfiles = (): Record<DeviceType, ScreenProfiles> => {
         autorImageSizeLarge: 220,
         autorImageRadius: 25,
         autorImageRadiusLarge: 12,
-      },
-      canvasViewContainer: {
-        marginTop: 30,
-      },
-      canvasWeltanschauungTitle: {
-        fontSize: 24,
-      },
-      canvasGedankeKurzLabel: {
-        fontSize: 12,
-      },
-      canvasGedankeKurz: {
-        fontSize: 18,
-        marginVertical: 10,
-        marginHorizontal: "10%",
-      },
-      canvasGedanke: {
-        fontSize: 18,
-        marginVertical: 15,
       },
       kommentarKreuz: {
         containerSize: 380,
@@ -442,39 +503,36 @@ const getScreenProfiles = (): Record<DeviceType, ScreenProfiles> => {
       },
     },
     webLarge: {
-      container: {
-        flexDirection: "row",
-        marginTop: 0,
-        titleHeight: 60,
-        padding: 16,
+      containerTop: 100,
+      textContainer: {
+        height: "100%",
+        marginTop: 30,
+        padding: 20,
+        marginRight: "50%",
+        marginLeft: 20,
+      },
+      gedankenfehler: {
+        fontSize: 20,
+      },
+      gedanke: {
+        fontSize: 20,
+      },
+      commentContainer: {
+        height: 100,
+        width: 100,
+        borderRadius: 100,
+        bottom: 95,
+        left: 0,
       },
       auswahlRad: {
-        circleSize: 1040,
-        circleOffsetX: 0.298 * width - 540,
-        circleOffsetY: 130,
+        circleSize: 400,
+        circleOffsetX: 0.75 * width - 340,
+        circleOffsetY: 0,
         minTapDistanceFromCenter: 20,
-        autorImageSize: 170,
-        autorImageSizeLarge: 220,
+        autorImageSize: 90,
+        autorImageSizeLarge: 120,
         autorImageRadius: 25,
         autorImageRadiusLarge: 12,
-      },
-      canvasViewContainer: {
-        marginTop: 30,
-      },
-      canvasWeltanschauungTitle: {
-        fontSize: 28,
-      },
-      canvasGedankeKurzLabel: {
-        fontSize: 14,
-      },
-      canvasGedankeKurz: {
-        fontSize: 20,
-        marginVertical: 10,
-        marginHorizontal: "20%",
-      },
-      canvasGedanke: {
-        fontSize: 20,
-        marginVertical: 20,
       },
       kommentarKreuz: {
         containerSize: 400,
@@ -487,7 +545,7 @@ const getScreenProfiles = (): Record<DeviceType, ScreenProfiles> => {
 };
 
 // Theme-aware styles
-const getStyles = () => {
+const getStyles = (deviceProfile: AufloesungsScreenProfile) => {
   // const colorScheme = useColorScheme();
   // const theme: 'light' | 'dark' = colorScheme === 'dark' ? 'dark' : 'light';
   const theme = "light";
@@ -496,17 +554,18 @@ const getStyles = () => {
   return StyleSheet.create({
     // Layout and containers
     container: {
-      position: "relative",
       flex: 1,
-      padding: 16,
+      padding: 0,
       height: "100%",
       width: "100%",
     },
     textContainer: {
       position: "relative",
-      height: 620,
-      marginTop: 30,
-      padding: 20,
+      height: deviceProfile.textContainer?.height || 620,
+      marginTop: deviceProfile.textContainer?.marginTop || 30,
+      padding: deviceProfile.textContainer?.padding || 20,
+      marginRight: deviceProfile.textContainer?.marginRight || 0,
+      marginLeft: deviceProfile.textContainer?.marginLeft || 0,
       borderWidth: 0.5,
       borderRadius: 20,
       borderTopWidth: 2,
@@ -538,23 +597,24 @@ const getStyles = () => {
     },
     auswahlradContainer: {
       position: "relative",
-      top: 600,
-      zIndex: 10,
+      zIndex: 0,
+      backgroundColor: "transparent",
     },
     error: {
       color: "red",
       marginTop: 10,
     },
-
     gedankenfehler: {
-      fontSize: 18,
+      fontSize: deviceProfile.gedankenfehler?.fontSize || 20,
+      lineHeight: (deviceProfile.gedankenfehler?.fontSize || 20) * 1.3,
       fontFamily: "OverlockRegular",
       color: themeColors.gedankenfehlerDefaultColor,
       textAlign: "center",
       flex: 1,
     },
     gedanke: {
-      fontSize: 22,
+      fontSize: deviceProfile.gedanke?.fontSize || 22,
+      lineHeight: (deviceProfile.gedanke?.fontSize || 22) * 1.35,
       fontFamily: "OverlockRegular",
       alignItems: "center",
       textAlign: "justify",
@@ -566,39 +626,17 @@ const getStyles = () => {
       flexDirection: "row",
       justifyContent: "center",
       alignItems: "center",
-      height: 100,
-      width: 100,
-      borderRadius: 100,
-      bottom: 115,
-      left: -10,
+      height: deviceProfile.commentContainer?.height || 100,
+      width: deviceProfile.commentContainer?.width || 100,
+      borderRadius: deviceProfile.commentContainer?.borderRadius || 100,
+      bottom: deviceProfile.commentContainer?.bottom || 95,
+      left: deviceProfile.commentContainer?.left || 0,
       zIndex: 15,
-    },
-    comment: {
-      position: "absolute",
-      bottom: 10,
-      left: 0,
-      right: 0,
-      fontSize: 28,
-      textAlign: "center",
-      alignSelf: "center",
-      width: "100%",
-      letterSpacing: 6,
-    },
-    commentChoices: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: 20,
-    },
-    commentChoiceOk: {
-      fontSize: 40,
     },
     commentChoiceVoter: {
       width: 80,
       height: 80,
     },
-
-    // Author information
     weltanschauung: {
       fontFamily: "OverlockBold",
       fontSize: 28,
@@ -613,20 +651,6 @@ const getStyles = () => {
       fontSize: 18,
       textAlign: "center",
       marginTop: -5,
-    },
-    model: {
-      fontSize: 10,
-      textAlign: "center",
-      marginTop: 4,
-      marginBottom: 5,
-    },
-    bottomTexts: {
-      position: "absolute",
-      bottom: 0,
-      left: 30,
-      flexDirection: "column",
-      justifyContent: "space-between",
-      alignItems: "center",
     },
     gedankenfehlerContainer: {
       flexDirection: "row",

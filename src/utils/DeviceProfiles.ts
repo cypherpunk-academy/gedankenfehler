@@ -69,7 +69,7 @@ export interface ScrollAuswahlProfile {
 }
 
 // Combined profiles for each screen
-export interface ScreenProfiles {
+export interface GedankenfehlerScreenProfile {
   container?: {
     flexDirection: "column" | "row";
     marginTop?: number;
@@ -111,102 +111,56 @@ export interface ScreenProfiles {
   };
 }
 
-// AufloesungScreen profiles
-export const aufloesungScreenProfiles: Record<DeviceType, ScreenProfiles> = {
-  smartphone: {
-    auswahlRad: {
-      circleSize: 600,
-      circleOffsetX: -80,
-      circleOffsetY: 550,
-      minTapDistanceFromCenter: 20,
-      autorImageSize: 100,
-      autorImageSizeLarge: 120,
-      autorImageRadius: 40,
-      autorImageRadiusLarge: 40,
-    },
-    kommentarKreuz: {
-      containerSize: 280,
-      centerCircleSize: 80,
-      reactionDistance: 90,
-      reactionCircleSize: 60,
-    },
-  },
-  tablet: {
-    auswahlRad: {
-      circleSize: 800,
-      circleOffsetX: -80,
-      circleOffsetY: 680,
-      minTapDistanceFromCenter: 20,
-      autorImageSize: 150,
-      autorImageSizeLarge: 170,
-      autorImageRadius: 60,
-      autorImageRadiusLarge: 60,
-    },
-    kommentarKreuz: {
-      containerSize: 350,
-      centerCircleSize: 100,
-      reactionDistance: 110,
-      reactionCircleSize: 70,
-    },
-  },
-  webSmall: {
-    auswahlRad: {
-      circleSize: 800,
-      circleOffsetX: -80,
-      circleOffsetY: 650,
-      minTapDistanceFromCenter: 20,
-      autorImageSize: 150,
-      autorImageSizeLarge: 180,
-      autorImageRadius: 60,
-      autorImageRadiusLarge: 60,
-    },
-    kommentarKreuz: {
-      containerSize: 350,
-      centerCircleSize: 100,
-      reactionDistance: 110,
-      reactionCircleSize: 70,
-    },
-  },
-  webMedium: {
-    auswahlRad: {
-      circleSize: 850,
-      circleOffsetX: -80,
-      circleOffsetY: 680,
-      minTapDistanceFromCenter: 20,
-      autorImageSize: 160,
-      autorImageSizeLarge: 190,
-      autorImageRadius: 65,
-      autorImageRadiusLarge: 65,
-    },
-    kommentarKreuz: {
-      containerSize: 380,
-      centerCircleSize: 110,
-      reactionDistance: 120,
-      reactionCircleSize: 75,
-    },
-  },
-  webLarge: {
-    auswahlRad: {
-      circleSize: 900,
-      circleOffsetX: -80,
-      circleOffsetY: 700,
-      minTapDistanceFromCenter: 20,
-      autorImageSize: 170,
-      autorImageSizeLarge: 200,
-      autorImageRadius: 70,
-      autorImageRadiusLarge: 70,
-    },
-    kommentarKreuz: {
-      containerSize: 400,
-      centerCircleSize: 120,
-      reactionDistance: 130,
-      reactionCircleSize: 80,
-    },
-  },
-};
+// AufloesungsScreen profiles
+export interface AufloesungsScreenProfile {
+  containerTop: number;
+  auswahlRad: AuswahlRadProfile;
+  kommentarKreuz: KommentarKreuzProfile;
+  textContainer?: {
+    height: DimensionValue;
+    marginTop: number;
+    padding: number;
+    marginRight?: DimensionValue;
+    marginLeft?: DimensionValue;
+  };
+  gedankenfehler?: {
+    fontSize: number;
+  };
+  gedanke?: {
+    fontSize: number;
+  };
+  commentContainer?: {
+    height: DimensionValue;
+    width: DimensionValue;
+    borderRadius: number;
+    bottom: number;
+    left: number;
+  };
+  canvasViewContainer?: {
+    marginTop: number;
+  };
+  canvasWeltanschauungTitle?: {
+    fontSize: number;
+  };
+  canvasGedankeKurzLabel?: {
+    fontSize: number;
+  };
+  canvasGedankeKurz?: {
+    fontSize: number;
+    marginHorizontal?: string;
+    marginVertical?: number;
+  };
+  canvasGedanke?: {
+    fontSize: number;
+    marginVertical?: number;
+  };
+}
 
 // EinfuehrungScreen profiles
-export const einfuehrungScreenProfiles: Record<DeviceType, ScreenProfiles> = {
+export const einfuehrungScreenProfiles: Record<
+  DeviceType,
+  { auswahlRad: AuswahlRadProfile }
+> = {
   smartphone: {
     auswahlRad: {
       circleSize: 500,
@@ -270,9 +224,9 @@ export const einfuehrungScreenProfiles: Record<DeviceType, ScreenProfiles> = {
 };
 
 // Hook to listen for dimension changes
-export function useDeviceProfile<T extends Record<DeviceType, ScreenProfiles>>(
-  profiles: T,
-): ScreenProfiles {
+export function useDeviceProfile<T>(
+  profiles: Record<DeviceType, T>,
+): T & { deviceType: DeviceType } {
   // Start with default device type
   const [deviceType, setDeviceType] = React.useState<DeviceType>(
     DEFAULT_WEB_DEVICE_TYPE,

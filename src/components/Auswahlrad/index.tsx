@@ -461,7 +461,6 @@ const getStyles = (options: AuswahlradOptions) => {
       alignItems: "center",
       justifyContent: "center",
       position: "relative",
-      backgroundColor: "transparent",
     },
     circleImage: {
       width: circleSize,

@@ -1,62 +1,64 @@
-import React from 'react';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Link, Tabs } from 'expo-router';
-import { Pressable } from 'react-native';
+import React from "react";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { Link, Tabs } from "expo-router";
+import { Pressable, Platform } from "react-native";
+import { useMediaQuery } from "react-responsive";
 
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { useClientOnlyValue } from '@/components/useClientOnlyValue';
+import { Colors } from "@/constants/Colors";
+import { useColorScheme } from "@/hooks/useColorScheme";
+import { useClientOnlyValue } from "@/components/useClientOnlyValue";
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 function TabBarIcon(props: {
-    name: React.ComponentProps<typeof FontAwesome>['name'];
-    color: string;
+  name: React.ComponentProps<typeof FontAwesome>["name"];
+  color: string;
 }) {
-    return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
+  return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
 }
 
 export default function TabLayout() {
-    const colorScheme = useColorScheme();
+  const colorScheme = useColorScheme();
+  const isWebMediumOrLarge = useMediaQuery({ minWidth: 768 });
 
-    return (
-        <Tabs
-            screenOptions={{
-                tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-                // Disable the static render of the header on web
-                // to prevent a hydration error in React Navigation v6.
-                headerShown: useClientOnlyValue(false, true),
-            }}
-        >
-            <Tabs.Screen
-                name="GedankenfehlerScreen"
-                options={{
-                    title: 'Gedankenfehler',
-                    headerShown: false,
-                    tabBarIcon: ({ color }) => (
-                        <TabBarIcon name="cog" color={color} />
-                    ),
-                }}
-            />
-            <Tabs.Screen
-                name="AufloesungScreen"
-                options={{
-                    title: 'Auflösung',
-                    headerShown: false,
-                    tabBarIcon: ({ color }) => (
-                        <TabBarIcon name="lightbulb-o" color={color} />
-                    ),
-                }}
-            />
-            <Tabs.Screen
-                name="EinfuehrungScreen"
-                options={{
-                    title: 'Einführung',
-                    headerShown: false,
-                    tabBarIcon: ({ color }) => (
-                        <TabBarIcon name="info" color={color} />
-                    ),
-                }}
-            />
-        </Tabs>
-    );
+  return (
+    <Tabs
+      screenOptions={{
+        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
+        // Disable the static render of the header on web
+        // to prevent a hydration error in React Navigation v6.
+        headerShown: useClientOnlyValue(false, true),
+        tabBarStyle: Platform.select({
+          web: isWebMediumOrLarge ? { display: "none" } : undefined,
+          default: undefined,
+        }),
+      }}
+    >
+      <Tabs.Screen
+        name="GedankenfehlerScreen"
+        options={{
+          title: "Gedankenfehler",
+          headerShown: false,
+          tabBarIcon: ({ color }) => <TabBarIcon name="cog" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="AufloesungScreen"
+        options={{
+          title: "Auflösung",
+          headerShown: false,
+          tabBarIcon: ({ color }) => (
+            <TabBarIcon name="lightbulb-o" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="EinfuehrungScreen"
+        options={{
+          title: "Einführung",
+          headerShown: false,
+          tabBarIcon: ({ color }) => <TabBarIcon name="info" color={color} />,
+        }}
+      />
+    </Tabs>
+  );
 }
