@@ -402,16 +402,16 @@ const getScreenProfiles = (): Record<
       container: {
         flexDirection: "column",
         marginTop: 0,
-        titleHeight: 50,
+        titleHeight: 30,
       },
       titleTextWeltanschauungen: {
         marginTop: 5,
-        fontSize: 26,
+        fontSize: 20,
       },
       scrollAuswahl: {
-        itemHeight: 45,
+        itemHeight: 35,
         visibleItems: 3,
-        fontSize: 20,
+        fontSize: 17,
       },
       auswahlRad: {
         circleSize: 820,
@@ -424,16 +424,16 @@ const getScreenProfiles = (): Record<
         autorImageRadiusLarge: 8,
       },
       canvasViewContainer: {
-        marginTop: 170,
+        marginTop: 190,
       },
       canvasWeltanschauungTitle: {
-        fontSize: 28,
+        fontSize: 24,
       },
       canvasGedankeKurzLabel: {
-        fontSize: 14,
+        fontSize: 12,
       },
       canvasGedankeKurz: {
-        fontSize: 20,
+        fontSize: 17,
         marginHorizontal: "7%",
       },
     },
