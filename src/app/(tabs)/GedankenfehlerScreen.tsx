@@ -490,7 +490,7 @@ const getScreenProfiles = (): Record<
       canvasGedankeKurz: {
         fontSize: 18,
         marginVertical: 10,
-        marginHorizontal: "10%",
+        marginHorizontal: "5%",
       },
       canvasGedanke: {
         fontSize: 18,
