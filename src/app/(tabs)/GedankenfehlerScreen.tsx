@@ -1,4 +1,10 @@
-import React, { useCallback, useContext, useMemo, useRef } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import {
   StyleSheet,
   View,
@@ -11,6 +17,7 @@ import {
   ScrollView,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useKeepAwake } from "expo-keep-awake";
 
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
@@ -135,6 +142,14 @@ const WebGedankenView: React.FC<GedankenViewProps> = ({
 
 export default function GedankenfehlerScreen() {
   const router = useRouter();
+
+  // Only use keep-awake on native platforms or when the document is visible in web
+  if (
+    Platform.OS !== "web" ||
+    (typeof document !== "undefined" && document.visibilityState === "visible")
+  ) {
+    useKeepAwake();
+  }
 
   // Get device profile
   const deviceProfile = useDeviceProfile(getScreenProfiles());
@@ -406,12 +421,12 @@ const getScreenProfiles = (): Record<
       },
       titleTextWeltanschauungen: {
         marginTop: 5,
-        fontSize: 20,
+        fontSize: 22,
       },
       scrollAuswahl: {
-        itemHeight: 35,
+        itemHeight: 50,
         visibleItems: 3,
-        fontSize: 17,
+        fontSize: 18,
       },
       auswahlRad: {
         circleSize: 820,
