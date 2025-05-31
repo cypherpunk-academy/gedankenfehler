@@ -237,8 +237,8 @@ export default function GedankenfehlerScreen() {
 
       const wordCount = currentGedanke.gedanke_kurz.trim().split(/\s+/).length;
 
-      if (wordCount > 50) return fontSize * 0.8;
-      if (wordCount > 40) return fontSize * 0.9;
+      if (wordCount > 50) return fontSize * 0.7;
+      if (wordCount > 40) return fontSize * 0.8;
       if (wordCount > 25) return fontSize;
       return fontSize * 1.2;
     },
